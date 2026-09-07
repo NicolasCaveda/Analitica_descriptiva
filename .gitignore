@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# HTML crudo de diagnostico: pesado y no aporta al repo
+data/debug/
+
+# Parciales de corridas interrumpidas
+data/raw/_checkpoint_*
+
+# CSVs sueltos por corrida: quedan consolidados en dataset_maestro.csv
+data/raw/remax_venta_*.csv
+data/raw/remax_alquiler_*.csv
+
+.ipynb_checkpoints/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Configuracion local de asistentes: es de cada maquina, no del proyecto
+.claude/
