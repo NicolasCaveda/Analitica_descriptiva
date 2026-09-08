@@ -3,6 +3,8 @@
 **TP Integrador — 82.04 Analítica Descriptiva (ITBA)**
 **Primera Pre-Entrega: Estrategia, Arquitectura del Problema y Recolección de Datos**
 
+**Grupo 2** — Iael Berezovsky · Nicolás Caveda · Máximo Lladhon · Ezequiel Naymark
+
 Construcción desde cero de una base de datos del mercado inmobiliario porteño
 mediante extracción automatizada, orientada a una pregunta de negocio: **¿qué
 conviene comprar en CABA para ponerlo en alquiler?**

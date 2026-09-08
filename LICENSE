@@ -1,0 +1,84 @@
+USO ACADÉMICO — TRABAJO PRÁCTICO INTEGRADOR
+82.04 Analítica Descriptiva — Instituto Tecnológico de Buenos Aires (ITBA)
+
+Grupo 2 — Iael Berezovsky, Nicolás Caveda, Máximo Lladhon, Ezequiel Naymark
+Año 2026
+
+
+1. ALCANCE
+
+Este repositorio contiene el trabajo práctico integrador de la asignatura
+82.04 Analítica Descriptiva. Su finalidad es exclusivamente académica: la
+formación de los integrantes del grupo y su evaluación por parte de la cátedra.
+
+No constituye un producto comercial, no se ofrece como servicio y no está
+destinado a la toma de decisiones de inversión reales.
+
+
+2. CÓDIGO FUENTE
+
+El código de este repositorio (directorio `src/`, scripts y notebooks) se
+publica bajo licencia MIT:
+
+    Copyright (c) 2026 Iael Berezovsky, Nicolás Caveda, Máximo Lladhon,
+    Ezequiel Naymark
+
+    Se concede permiso, sin cargo, a cualquier persona que obtenga una copia de
+    este software y de los archivos de documentación asociados, para utilizarlo
+    sin restricción, incluyendo sin limitación los derechos de uso, copia,
+    modificación, fusión, publicación, distribución, sublicencia y/o venta de
+    copias del software, y para permitir a las personas a quienes se les
+    proporcione el software hacer lo mismo, sujeto a las siguientes condiciones:
+
+    El aviso de copyright anterior y este aviso de permiso deberán incluirse en
+    todas las copias o partes sustanciales del software.
+
+    EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA
+    O IMPLÍCITA, INCLUYENDO PERO NO LIMITADO A GARANTÍAS DE COMERCIABILIDAD,
+    IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y NO INFRACCIÓN. EN NINGÚN CASO LOS
+    AUTORES O TITULARES DEL COPYRIGHT SERÁN RESPONSABLES DE NINGUNA
+    RECLAMACIÓN, DAÑO U OTRA RESPONSABILIDAD, YA SEA EN UNA ACCIÓN CONTRACTUAL,
+    AGRAVIO O DE OTRO MODO, QUE SURJA DE, O EN CONEXIÓN CON EL SOFTWARE O EL
+    USO U OTROS TRATOS EN EL SOFTWARE.
+
+
+3. DATOS
+
+El archivo `data/raw/dataset_maestro.csv` contiene avisos inmobiliarios
+públicamente accesibles, recolectados de RE/MAX Argentina en agosto de 2026
+mediante consultas a su interfaz pública.
+
+Sobre estos datos:
+
+  - Se incluyen únicamente para permitir la reproducibilidad del análisis
+    académico y la verificación de los resultados por parte de la cátedra.
+
+  - La titularidad de la información publicada corresponde a RE/MAX Argentina
+    y a los anunciantes respectivos. Los autores de este trabajo no reclaman
+    derecho alguno sobre dicho contenido.
+
+  - No se incluyen datos personales de anunciantes, agentes ni terceros:
+    el conjunto se limita a características del inmueble, su ubicación
+    aproximada y su precio de publicación.
+
+  - No se autoriza el uso comercial, la redistribución ni la explotación
+    de estos datos con fines distintos al académico aquí declarado.
+
+  - La recolección se realizó respetando pausas entre solicitudes, sin
+    sortear medidas de autenticación y sin generar carga significativa sobre
+    los servidores de origen.
+
+Ante cualquier solicitud del titular de los datos, los autores retirarán el
+archivo de este repositorio.
+
+
+4. LIMITACIÓN DE RESPONSABILIDAD
+
+Los precios corresponden a valores de publicación —no de cierre— relevados en
+un único momento, y provienen de una sola fuente, por lo que no representan la
+totalidad del mercado inmobiliario de la Ciudad Autónoma de Buenos Aires.
+
+Cualquier análisis, estimación o conclusión derivada de este trabajo tiene
+carácter exclusivamente académico y no constituye asesoramiento financiero,
+inmobiliario ni de inversión. Los autores no asumen responsabilidad alguna por
+decisiones tomadas sobre la base de este material.
