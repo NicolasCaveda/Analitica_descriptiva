@@ -59,7 +59,7 @@ Sus características definen todo el análisis:
 **Compra una unidad, no una cartera.** No puede diversificar. Si elige mal, no hay
 otra inversión que compense: el error impacta el 100% de su capital.
 
-**Su ticket está acotado.** El 59% de la oferta relevada está por debajo de los USD
+**Su ticket está acotado.** El 57% de la oferta relevada está por debajo de los USD
 150.000, y la mediana en USD 130.000. Ese es su universo real de decisión.
 
 **Prioriza previsibilidad sobre rendimiento máximo.** Un punto adicional de
@@ -369,14 +369,11 @@ la hipótesis o pregunta que permite responder.
 | Fuente | Qué aporta | Para qué |
 |---|---|---|
 | Bocas de subte (BA Data) | Coordenadas de las 379 bocas | Validar H2: distancia al transporte y su radio de influencia |
-| Estaciones ferroviarias (BA Data) | Coordenadas de estaciones | Completar la accesibilidad en zonas sin subte |
-| Espacios verdes (BA Data) | Polígonos de plazas y parques | Medir la prima por cercanía a espacio verde |
-| Polígonos de barrios y comunas (BA Data) | Geometrías oficiales | Validar la asignación de barrio y habilitar mapas coropléticos |
-| Delitos por comuna (BA Data) | Hechos registrados | Construir un índice de seguridad por zona |
-| Tipo de cambio (API BCRA) | Serie ARS/USD | Convertir alquileres publicados en pesos y medir la sensibilidad del KPI |
-| Censo 2022 por radio censal (INDEC) | Nivel socioeconómico | Segmentar la demanda potencial de alquiler |
+| Estaciones ferroviarias (BA Data) | Coordenadas de 301 estaciones | Completar la accesibilidad en zonas sin cobertura de subte |
+| Espacios verdes públicos (BA Data) | Polígonos de 2.176 plazas y parques | Medir la prima por cercanía a espacio verde |
 
-El cruce es posible porque el 99,9% de los avisos tiene coordenadas geográficas.
+El cruce es posible porque el **99,9% de los avisos tiene coordenadas geográficas**, lo
+que permite calcular distancias sin necesidad de geocodificar direcciones.
 
 ---
 
@@ -405,14 +402,6 @@ dispersos en índices interpretables, y segmentación no supervisada para descub
 micro-mercados.
 
 **Tablero y presentación.** Dashboard interactivo e informe final orientado al inversor.
-
-### Dependencia crítica
-
-El análisis temporal —tiempo de publicación como proxy del *time to sell*, evolución de
-precios, probabilidad de colocación en 30 o 60 días— requiere **recolección
-periódica**. Si no se inicia un relevamiento recurrente en las próximas semanas, esas
-preguntas quedan fuera de alcance de forma definitiva: no pueden reconstruirse hacia
-atrás.
 
 ---
 
