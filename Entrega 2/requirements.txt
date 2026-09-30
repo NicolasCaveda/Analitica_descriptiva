@@ -1,0 +1,29 @@
+# Analisis y limpieza
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Modelo de estimacion de alquiler (kpis.py / modelo_alquiler.py).
+# El parametro min_frequency de OneHotEncoder existe desde 1.1.
+scikit-learn>=1.1.0
+joblib>=1.3.0
+
+# Visualizacion. seaborn para violines y distribuciones; plotly para el
+# grafico interactivo del notebook 03. matplotlib es la base de los dos.
+matplotlib>=3.7.0
+seaborn>=0.13.0
+plotly>=5.18.0
+
+# Estadistica descriptiva (asimetria, curtosis, correlaciones)
+scipy>=1.11.0
+
+# Ejecucion de los notebooks de punta a punta
+nbformat>=5.9.0
+nbconvert>=7.10.0
+ipykernel>=6.29.0
+
+# ---------------------------------------------------------------------------
+# NO se incluyen las dependencias de scraping (requests, curl_cffi, Brotli,
+# zstandard, beautifulsoup4). La extraccion es materia de la 1ra entrega y su
+# repositorio; esta entrega parte de data/raw/dataset_maestro.csv, que se
+# versiona.
+# ---------------------------------------------------------------------------

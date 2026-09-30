@@ -14,7 +14,7 @@ Análisis de rentabilidad inmobiliaria en la Ciudad Autónoma de Buenos Aires pa
 | Carpeta | Etapa | Contenido |
 |---|---|---|
 | [`Entrega 1/`](Entrega%201/) | Estrategia, arquitectura y recolección (Unidades 1-2) | Definición del cliente, KPIs, hipótesis, scrapers y dataset maestro |
-| `Entrega 2/` | Curaduría, ingeniería de variables y EDA (Unidades 3-6) | Limpieza auditada, minería de texto con RegEx, KPIs materializados y análisis exploratorio |
+| [`Entrega 2/`](Entrega%202/) | Curaduría, ingeniería de variables y EDA (Unidades 3-6) | Limpieza auditada, minería de texto con RegEx, KPIs materializados, fuentes externas y análisis exploratorio. Informe: [`INFORME_HALLAZGOS.md`](Entrega%202/informe/INFORME_HALLAZGOS.md) |
 
 Cada carpeta es autónoma: tiene su propio `README.md` con la documentación de esa
 etapa, sus notebooks y sus datos.
