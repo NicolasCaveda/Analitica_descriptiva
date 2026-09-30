@@ -4,15 +4,18 @@ __pycache__/
 venv/
 .env
 
+# Los patrones van con **/ porque cada entrega vive en su propia carpeta y
+# un patron con barra se ancla a la ubicacion de este archivo (la raiz).
+
 # HTML crudo de diagnostico: pesado y no aporta al repo
-data/debug/
+**/data/debug/
 
 # Parciales de corridas interrumpidas
-data/raw/_checkpoint_*
+**/data/raw/_checkpoint_*
 
 # CSVs sueltos por corrida: quedan consolidados en dataset_maestro.csv
-data/raw/remax_venta_*.csv
-data/raw/remax_alquiler_*.csv
+**/data/raw/remax_venta_*.csv
+**/data/raw/remax_alquiler_*.csv
 
 .ipynb_checkpoints/
 .vscode/

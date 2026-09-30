@@ -1,0 +1,14 @@
+# Normalizacion de fin de linea. Sin esto, el archivo se ve modificado en git
+# status cada vez que se regenera en Windows aunque el contenido sea identico.
+* text=auto
+
+# Binarios: git NO debe tocarles los saltos de linea. Convertir un PDF o un PNG
+# lo corrompe en silencio.
+*.pdf   -text
+*.png   -text
+*.jpg   -text
+*.jpeg  -text
+*.gz    -text
+*.zip   -text
+*.xlsx  -text
+*.joblib -text
