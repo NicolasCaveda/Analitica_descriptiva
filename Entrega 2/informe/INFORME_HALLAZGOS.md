@@ -2,7 +2,7 @@
 
 **TP Integrador · 82.04 Analítica Descriptiva (ITBA) · Grupo 2**
 
-*Generado por `py reporte.py` el 05-10-2026. Cada cifra de este documento se calcula al generarlo a partir de `data/processed/` y `data/external/`: si se reejecuta el pipeline, el informe se regenera con los números nuevos.*
+*Generado por `py src/reporte.py` el 05-10-2026. Cada cifra de este documento se calcula al generarlo a partir de `data/processed/` y `data/external/`: si se reejecuta el pipeline, el informe se regenera con los números nuevos.*
 
 **Cliente:** un pequeño inversor con ahorros en dólares que compra **una sola unidad** en CABA para alquilarla, con un presupuesto de USD 80.000 a USD 200.000. **Base:** 9.203 departamentos, casas y PH en venta de la cartera de RE/MAX, relevados entre el 16-08-2026 y el 17-08-2026, con alquiler estimado confiable.
 

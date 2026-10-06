@@ -13,23 +13,64 @@ y fecha, cada supuesto del que dependen.
 
 ---
 
+## El proyecto en breve
+
+Resumen de lo definido en la 1ra entrega, actualizado con las cifras de esta. El
+desarrollo completo está en el [README de la 1ra entrega](../Entrega%201/README.md).
+
+**Contexto de negocio.** El inmueble es el destino habitual del ahorro en dólares, pero
+el mercado es opaco: no hay registro público de precios de cierre y no existe una fuente
+que relacione, para un mismo tipo de inmueble y zona, el precio de venta con el de
+alquiler. Esa relación es la que decide si una compra es buen negocio.
+
+**Interlocutor.** Un **pequeño inversor particular** con USD 80.000 a 200.000 que compra
+**una sola unidad** en CABA para alquilarla. No diversifica, prioriza previsibilidad
+sobre rendimiento máximo y no tiene acceso a tasadores: su información son los mismos
+avisos públicos. No lee notebooks, así que los resultados se le expresan en rangos de
+rentabilidad y no en métricas de modelo.
+
+**Objetivo.** Estimar la rentabilidad de cada inmueble en venta junto con su margen de
+error, para comparar alternativas sobre evidencia. No estima revalorización ni precios
+de cierre.
+
+**Alcance y unidad de análisis.**
+
+| | |
+|---|---|
+| Unidad de análisis | El **aviso** publicado (una fila = un inmueble ofrecido en venta o en alquiler) |
+| Geografía | CABA, 48 barrios y 15 comunas |
+| Período | Corte único: 16 de agosto de 2026, de 18:20 a 23:42 hora argentina (`fecha_scraping`, que está en UTC, cruza al 17) |
+| Fuente | Cartera de RE/MAX Argentina: no es el mercado completo, y su sesgo se mide en `sesgo.py` |
+| Tipologías | Solo residenciales; cocheras, oficinas, locales, terrenos y similares quedan fuera del alcance y se excluyen con motivo en `limpieza.py` |
+| Precios | De publicación, no de cierre |
+
+**Dataset crudo.** [`data/raw/dataset_maestro.csv`](data/raw/dataset_maestro.csv):
+14.867 avisos y 55 variables (13.106 ventas y 1.761 alquileres), extraídos de la API
+JSON pública de RE/MAX (`api.redremax.com`) con el scraper de la 1ra entrega. Se
+versiona completo (31 MB) y no se modifica. Para reconstruirlo desde cero se usa
+`run_scrapers.py` de [`../Entrega 1/`](../Entrega%201/); por ser un corte de mercado, una
+nueva corrida devuelve otra fecha y otros avisos. Las variables del dataset procesado
+están descritas en [`data/processed/DICCIONARIO_DATOS.md`](data/processed/DICCIONARIO_DATOS.md).
+
+---
+
 ## Reproducir
 
 ```bash
 py -m pip install -r requirements.txt
 
-py test_variables.py                 # tests del motor RegEx, sin red
-py test_eda.py                       # tests de la estadística de eda.py, sin datos
-py limpieza.py --tc 1500             # crudo -> dataset limpio + auditoría
-py variables.py                      # RegEx sobre el texto -> 35 dummies
-py kpis.py                           # modelo de alquiler -> los 4 KPIs
-py fuentes_externas.py               # IDECBA, Colegio, Airbnb y Censo -> data/external/
-py temporal.py                       # alquiler tradicional contra temporal
-py sesgo.py                          # sesgo de la cartera de RE/MAX
-py reporte.py                        # informe/INFORME_HALLAZGOS.md, cifras en vivo
-py test_supuestos.py                 # coherencia de supuestos.py con el pipeline
-py test_fuentes.py                   # joins con fuentes externas, sin red
-py supuestos.py                      # imprime los supuestos con su derivación
+py src/test_variables.py                 # tests del motor RegEx, sin red
+py src/test_eda.py                       # tests de la estadística de eda.py, sin datos
+py src/limpieza.py --tc 1500             # crudo -> dataset limpio + auditoría
+py src/variables.py                      # RegEx sobre el texto -> 35 dummies
+py src/kpis.py                           # modelo de alquiler -> los 4 KPIs
+py src/fuentes_externas.py               # IDECBA, Colegio, Airbnb y Censo -> data/external/
+py src/temporal.py                       # alquiler tradicional contra temporal
+py src/sesgo.py                          # sesgo de la cartera de RE/MAX
+py src/reporte.py                        # informe/INFORME_HALLAZGOS.md, cifras en vivo
+py src/test_supuestos.py                 # coherencia de supuestos.py con el pipeline
+py src/test_fuentes.py                   # joins con fuentes externas, sin red
+py src/supuestos.py                      # imprime los supuestos con su derivación
 ```
 
 Los tres primeros scripts reconstruyen `data/processed/` a partir de
@@ -53,7 +94,7 @@ nada. Para volver a ejecutarlos después de clonar el repositorio alcanza con un
 script:
 
 ```bash
-py limpieza.py --tc 1500
+py src/limpieza.py --tc 1500
 ```
 
 El notebook 01 narra la limpieza y para eso lee `dataset_limpio.csv` y
@@ -97,24 +138,78 @@ reporte.py  (todo lo anterior)  →  informe/INFORME_HALLAZGOS.md
 
 ---
 
+## Estructura del repositorio
+
+```
+Entrega 2/
+├── data/
+│   ├── raw/            dataset_maestro.csv, crudo sin modificar
+│   ├── processed/      dataset_analitico.csv, reportes, DICCIONARIO_DATOS.md
+│   ├── external/       tablas agregadas y fechadas de las fuentes externas
+│   └── reference/      ranking de barrios de la 1ra entrega, para comparar
+├── notebooks/          01 limpieza, 02 variables, 03 EDA (en orden de ejecución)
+├── src/                pipeline, supuestos y tests
+├── graficos/           los 15 gráficos que generan los notebooks
+├── informe/            INFORME_HALLAZGOS.md y FUENTES_EXTERNAS.md
+├── requirements.txt
+└── README.md
+```
+
+---
+
 ## Qué hay en cada archivo
+
+### El modelo de alquiler
+
+Los KPIs 1 a 4 quedaron definidos en la 1ra entrega sobre el **alquiler estimado**: el
+KPI 3 es "precio de venta / alquiler mensual estimado" y el KPI 4 es la banda que abre
+el error de esa estimación. El motivo es que una publicación de venta trae precio pero
+no alquiler: de las 12.097 filas limpias, 1.348 son alquileres observados y el resto,
+ventas sin contrapartida. Sin un estimador no hay KPI que materializar.
+
+`modelo_alquiler.py` se construyó para esta entrega. Las decisiones que lo definen:
+
+- **Ridge y no mínimos cuadrados.** Las 21 predictoras incluyen 14 dummies de texto
+  correlacionadas entre sí —un aviso con pileta suele tener gimnasio y seguridad—, y
+  con colinealidad los coeficientes de MCO se vuelven inestables. La penalización los
+  acota. El α se elige por validación cruzada, no a mano.
+- **Sobre `log(alquiler)` y no sobre el alquiler.** Los precios son asimétricos a
+  derecha y el error es proporcional, no absoluto: equivocarse USD 200 en un alquiler
+  de USD 500 no es lo mismo que en uno de USD 3.000. En logaritmo el error se vuelve
+  relativo y la distribución, simétrica.
+- **Corrección de smearing al volver a dólares.** La exponencial de la media no es la
+  media: deshacer el logaritmo sin corregir subestima todas las estimaciones de forma
+  sistemática. El factor se calcula sobre los residuos **fuera de muestra**, no sobre
+  los del ajuste.
+- **Variables elegidas por criterio, no por búsqueda automática.** Entran las que
+  superan el 95% de completitud y tienen sentido económico.
+- **Validación fuera de muestra.** R² de 0,848 en logaritmo y error relativo mediano de
+  11,2%, medidos por validación cruzada. El error **no es uniforme**: va de 10,5% en
+  unidades de menos de 35 m² a 18,0% en las de más de 100, y por eso se reporta por
+  tramo en `error_estimacion` en vez de como un número único.
+- **Control contra ruido.** Las dummies reales suman 0,0263 de R²; las mismas dummies
+  permutadas al azar restan 0,0022. La señal es de las variables, no de su cantidad.
+- **Cobertura declarada.** Un barrio con menos de 10 alquileres observados obliga al
+  modelo a extrapolar desde otros. Esas filas no se descartan: se marcan con
+  `estimacion_confiable = 0` y quedan fuera de la base del informe, que son 9.203 de
+  las 10.749 ventas.
 
 | Archivo | Qué hace |
 |---|---|
-| `limpieza.py` | Los 8 pasos de la 1ra entrega **más** detección de outliers comparada (4 criterios) y auditoría de nulos con imputación trazable |
-| `variables.py` | Motor RegEx: 35 dummies con límites de palabra y manejo de negación, 5 variables de estructura extraídas del texto, y la auditoría contra el método de subcadena anterior |
-| `supuestos.py` | **Todos los supuestos y umbrales del análisis**, cada uno con fuente y fecha: presupuesto del inversor, vacancia, los cuatro componentes de los gastos, banda de retorno mínimo, mínimos de cobertura y cortes gráficos. Los valores derivados (vacancia, total de gastos, banda) se calculan a partir de sus componentes |
-| `modelo_alquiler.py` | Sin cambios respecto de la 1ra entrega: el modelo se revisa en la 3ra. Lo que cambió es de dónde vienen sus supuestos: la vacancia y los gastos que recibe ya no son sus constantes internas sino los de `supuestos.py`, que `kpis.py` le pasa como argumentos |
-| `kpis.py` | Orquesta el modelo y materializa KPI 1-4 sobre las 12.097 filas |
-| `eda.py` | Estadística robusta, comparación dentro de estratos (`efecto_estratificado`) y estilo gráfico compartido por los notebooks |
-| `test_variables.py` | 73 tests del motor RegEx, sin red |
-| `test_eda.py` | Tests de `eda.py`, incluido un caso sintético donde la comparación ingenua inventa un efecto que la comparación dentro del estrato elimina |
-| `fuentes_externas.py` | Lee cuatro fuentes externas (IDECBA con precios y tiempo de publicación, Colegio de Escribanos, Inside Airbnb y Censo 2022), normaliza los barrios a los 48 oficiales y deja tablas agregadas y fechadas en `data/external/`. Catálogo en [`informe/FUENTES_EXTERNAS.md`](informe/FUENTES_EXTERNAS.md) |
-| `temporal.py` | Alquiler tradicional contra temporal, neta contra neta, por barrio y dormitorios, con la ocupación de equilibrio (P3) |
-| `sesgo.py` | Sesgo de la cartera de RE/MAX: precio contra IDECBA por barrio y representación contra el Censo 2022 por comuna |
-| `reporte.py` | Escribe [`informe/INFORME_HALLAZGOS.md`](informe/INFORME_HALLAZGOS.md): los hallazgos que cambian la decisión del inversor, con cada cifra calculada al generarlo |
-| `test_supuestos.py` | Verifica que los gastos sumen el total que recibe el modelo, que cada derivado salga de sus componentes y que el dataset y la comparación del temporal se hayan generado con los supuestos vigentes. Incluye casos negativos |
-| `test_fuentes.py` | Verifica que ningún join con las fuentes externas cambie la cantidad de filas, con negativos que provocan la trampa a propósito, y la normalización de barrios |
+| `src/limpieza.py` | Los 8 pasos de la 1ra entrega **más** detección de outliers comparada (4 criterios) y auditoría de nulos con imputación trazable |
+| `src/variables.py` | Motor RegEx: 35 dummies con límites de palabra y manejo de negación, 5 variables de estructura extraídas del texto, y la auditoría contra el método de subcadena anterior |
+| `src/supuestos.py` | **Todos los supuestos y umbrales del análisis**, cada uno con fuente y fecha: presupuesto del inversor, vacancia, los cuatro componentes de los gastos, banda de retorno mínimo, mínimos de cobertura y cortes gráficos. Los valores derivados (vacancia, total de gastos, banda) se calculan a partir de sus componentes |
+| `src/kpis.py` | Orquesta el modelo y materializa KPI 1-4 sobre las 12.097 filas |
+| `src/eda.py` | Estadística robusta, comparación dentro de estratos (`efecto_estratificado`) y estilo gráfico compartido por los notebooks |
+| `src/test_variables.py` | 73 tests del motor RegEx, sin red |
+| `src/test_eda.py` | Tests de `eda.py`, incluido un caso sintético donde la comparación ingenua inventa un efecto que la comparación dentro del estrato elimina |
+| `src/modelo_alquiler.py` | Estima el alquiler de las propiedades publicadas solo en venta, que es el numerador de los KPIs 1 a 3 y la fuente del error del KPI 4. Ver [El modelo de alquiler](#el-modelo-de-alquiler). No se modifica en esta entrega; su revisión es alcance de la 3ra |
+| `src/fuentes_externas.py` | Lee cuatro fuentes externas (IDECBA con precios y tiempo de publicación, Colegio de Escribanos, Inside Airbnb y Censo 2022), normaliza los barrios a los 48 oficiales y deja tablas agregadas y fechadas en `data/external/`. Catálogo en [`informe/FUENTES_EXTERNAS.md`](informe/FUENTES_EXTERNAS.md) |
+| `src/temporal.py` | Alquiler tradicional contra temporal, neta contra neta, por barrio y dormitorios, con la ocupación de equilibrio (P3) |
+| `src/sesgo.py` | Sesgo de la cartera de RE/MAX: precio contra IDECBA por barrio y representación contra el Censo 2022 por comuna |
+| `src/reporte.py` | Escribe [`informe/INFORME_HALLAZGOS.md`](informe/INFORME_HALLAZGOS.md): los hallazgos que cambian la decisión del inversor, con cada cifra calculada al generarlo |
+| `src/test_supuestos.py` | Verifica que los gastos sumen el total que recibe el modelo, que cada derivado salga de sus componentes y que el dataset y la comparación del temporal se hayan generado con los supuestos vigentes. Incluye casos negativos |
+| `src/test_fuentes.py` | Verifica que ningún join con las fuentes externas cambie la cantidad de filas, con negativos que provocan la trampa a propósito, y la normalización de barrios |
 | `notebooks/01_limpieza_y_calidad.ipynb` | Auditoría de calidad: nulos por naturaleza, outliers, exclusiones |
 | `notebooks/02_ingenieria_variables.ipynb` | Motor RegEx, variables de estructura y KPIs |
 | `notebooks/03_eda.ipynb` | EDA con estadística robusta y once visualizaciones (05 a 15), incluido un mapa de dispersión espacial. Toda afirmación bivariada se verifica dentro del estrato barrio × superficie; evalúa H1, H3 y H4 por tamaño del efecto |
@@ -142,7 +237,7 @@ TIR.
 ### Supuestos del KPI 2
 
 Vacancia y gastos se definen, miden y justifican por separado en `supuestos.py`.
-Resumen (`py supuestos.py` imprime la versión vigente):
+Resumen (`py src/supuestos.py` imprime la versión vigente):
 
 | Supuesto | Valor | Cómo se obtiene | Fuente |
 |---|---|---|---|
@@ -275,7 +370,7 @@ art. 1198 reformado). Después del DNU, la oferta de alquileres en CABA creció
 174,95% hasta octubre de 2024 (Observatorio Estadístico del Sector Inmobiliario,
 citado por TV Pública, 30-10-2024).
 
-**En nuestros datos.** El scraping es del 16 y 17 de agosto de 2026 (`fecha_scraping`),
+**En nuestros datos.** El scraping es del 16 de agosto de 2026 (`fecha_scraping`),
 en pleno régimen desregulado. Hay 7,97 ventas por cada alquiler (10.749 contra
 1.348), y el 18,4% de los alquileres se publica en dólares, algo que la libertad de
 moneda habilita.
@@ -396,7 +491,24 @@ de inversión: marca la vara contra la que se lee la rentabilidad neta.
 | **Restricciones** | Retorno mínimo; riesgo de ocupación, mayor en el temporal; horizonte, que tiene que alcanzar para amortizar el amoblamiento |
 | **Criterio para recomendar** | Comparar **neta contra neta**, por barrio y dormitorios. Comparar el ingreso bruto del temporal contra la neta del tradicional sesga el resultado a favor del temporal de entrada. Como la ocupación del temporal no se observa, el criterio es la **ocupación de equilibrio**: con cuánta ocupación el temporal empata al tradicional. Recomendar el temporal solo si la ocupación que el inversor puede sostener supera ese umbral con margen |
 
-**Primer resultado** (`py temporal.py`, datos de Inside Airbnb del 29-06-2026 y supuestos de `supuestos.py`): en las 47 combinaciones de barrio y dormitorios con datos suficientes de los dos lados, la ocupación de equilibrio mediana es 65,3% con gestión tercerizada y 51,5% autogestionada. La ocupación que estima Inside Airbnb para esas celdas tiene una mediana de 18,6%, y con ella el temporal no le gana al tradicional en ninguna. Aun con el 53% que informa la prensa (La Nación, 29-05-2025), gana en 3 de 47. El resultado resiste los dos supuestos más débiles: con servicios a la mitad y sin amoblamiento, el equilibrio mediano sigue en 54,4%. El ingreso por noche es alto, pero en el temporal las expensas y los servicios los paga el dueño, y eso, sumado a la plataforma y la gestión, se come la diferencia. La ocupación de Inside Airbnb es una estimación a partir de reseñas, no un dato observado.
+**Primer resultado** (`py src/temporal.py`, datos de Inside Airbnb del 29-06-2026 y supuestos de `supuestos.py`): en las 47 combinaciones de barrio y dormitorios con datos suficientes de los dos lados, la ocupación de equilibrio mediana es 65,3% con gestión tercerizada y 51,5% autogestionada. La ocupación que estima Inside Airbnb para esas celdas tiene una mediana de 18,6%, y con ella el temporal no le gana al tradicional en ninguna. Aun con el 53% que informa la prensa (La Nación, 29-05-2025), gana en 3 de 47. El resultado resiste los dos supuestos más débiles: con servicios a la mitad y sin amoblamiento, el equilibrio mediano sigue en 54,4%. El ingreso por noche es alto, pero en el temporal las expensas y los servicios los paga el dueño, y eso, sumado a la plataforma y la gestión, se come la diferencia. La ocupación de Inside Airbnb es una estimación a partir de reseñas, no un dato observado.
+
+---
+
+## Hipótesis revisadas
+
+Las cuatro hipótesis de la 1ra entrega, con la evidencia preliminar de esta. Se evalúan
+por tamaño del efecto dentro del estrato barrio × superficie; el contraste formal es de
+la 3ra entrega.
+
+| Hipótesis | Evidencia preliminar | Estado |
+|---|---|---|
+| **H1** — La rentabilidad bruta es inversamente proporcional al precio del m² del barrio | Spearman −0,903 sobre 29 barrios; entre −0,949 y −0,876 dentro de cada tramo de superficie | Respaldada |
+| **H2** — El precio del m² decrece con la distancia al subte | Requiere fusión espacial con BA Data | No evaluable todavía |
+| **H3** — Los inmuebles "a reciclar" cotizan con descuento | Descuento mediano de −23,3% en el m² frente a comparables, negativo en las 35 celdas; +1,12 pp de rentabilidad bruta | Respaldada |
+| **H4** — La antigüedad impacta más en el precio de venta que en el alquiler | Spearman dentro del estrato −0,55 en venta contra −0,25 en alquiler, con pocas celdas del lado del alquiler | Tentativa |
+
+Detalle y test previsto para cada una: notebook 03, §4.
 
 ---
 
@@ -443,21 +555,44 @@ modelo con vacancia 8% y gastos 12% (los supuestos de la 1ra entrega), ejecutado
 28-09-2026 contra los resultados procesados de la 1ra entrega, en solo lectura. El ranking
 por barrio de la 1ra entrega está versionado en `data/reference/`.*
 
----
+## Respuesta a la devolución de la 1ra entrega
 
-## Convenciones
+| Observación | Qué se hizo | Dónde |
+|---|---|---|
+| El contexto argentino necesita mayor profundidad histórica: crédito hipotecario cíclico, predominio del contado, cambios regulatorios del alquiler | Sección nueva de contexto, en cinco partes, cada una cerrando con la consecuencia analítica concreta y no con el dato histórico suelto | [Contexto argentino](#contexto-argentino-por-qué-cambia-la-lectura-de-los-datos) |
+| Distinguir los dos sentidos de "predictivo" | Se declara que el trabajo hace **predicción transversal** —estimar el alquiler de hoy de una propiedad publicada solo en venta— y no pronóstico temporal, que el corte único de agosto de 2026 no permite | [Dos sentidos de "predictivo"](#dos-sentidos-de-predictivo) |
+| Las preguntas prescriptivas deben declarar decisión, alternativas, información necesaria, restricciones y criterio de recomendación | Tres decisiones (comprar o no / qué propiedad / tradicional o temporal), cada una con sus cinco componentes y con las restricciones expresadas en valores de `supuestos.py`. La función de decisión que las resuelve es alcance de la 3ra entrega | [Prescriptivo](#prescriptivo--qué-conviene-hacer) |
+| Vacancia y gastos deben definirse, medirse y justificarse por separado | La vacancia se **deriva** (meses vacíos por rotación sobre duración del contrato) en vez de afirmarse, y los gastos se abren en cuatro componentes con su fuente cada uno: administración 4,15%, ABL 3,80%, extraordinarias 1,92%, mantenimiento 4,17% | `supuestos.py`, [Supuestos del KPI 2](#supuestos-del-kpi-2) |
+| Un ROI debe compararse con alternativas de riesgo y plazo equivalente | Banda de retorno mínimo de 7,10% a 7,60% anual en dólares (ON corporativas), con el horizonte fijado en el vencimiento del instrumento que marca el piso. La comparación es el primer hallazgo del informe: la renta neta mediana del ladrillo queda por debajo de esa banda | `supuestos.py`, [informe §1](informe/INFORME_HALLAZGOS.md) |
+| "Meses de repago" no representa recuperación financiera completa | Se declara que es recupero simple sobre el flujo de alquiler y que ignora valor residual, apreciación e inflación | [Los cuatro KPIs](#los-cuatro-kpis-materializados), notebook 02 §7 |
+| Comparar inmuebles semejantes antes de atribuir una diferencia a un atributo | Todo efecto bivariado se mide **dentro de celdas de barrio y rango de superficie**, y donde el tamaño muestral alcanza se agrega el tipo de propiedad como control de robustez. Ningún atributo se evalúa sobre el total | notebook 03 (bloque C), [informe §5](informe/INFORME_HALLAZGOS.md) |
+| Agrupar en una configuración visible los umbrales de presupuesto, completitud y cortes gráficos | `supuestos.py`, un único módulo con todos los supuestos y umbrales. Cada constante lleva su fuente y su fecha en el comentario, al lado del número, y las que no tienen fuente publicada están marcadas como estimación propia | `supuestos.py` |
+| Revisar que las cifras narradas coincidan con las calculadas | El informe de hallazgos no se escribe a mano: lo emite `reporte.py` leyendo `data/processed/` y `data/external/`. Hasta los títulos dependen del dato, de modo que no puedan afirmar lo contrario de lo que muestra la tabla de abajo | `reporte.py`, `informe/INFORME_HALLAZGOS.md` |
+| Cuantificar el sesgo que introduce la cartera de RE/MAX | Medido contra dos marcos externos: el precio publicado del m² de IDECBA, celda por celda, y el stock de departamentos del Censo 2022 por comuna. El informe traduce el sesgo al KPI: cuánto bajaría la rentabilidad neta mediana si se comprara al precio promedio del mercado | `sesgo.py`, [informe §3](informe/INFORME_HALLAZGOS.md), [catálogo](informe/FUENTES_EXTERNAS.md) |
+| Para cada fuente adicional, indicar fecha, nivel geográfico, cómo se combina con RE/MAX y qué decisión ayuda a mejorar | Catálogo con esos campos para cinco fuentes integradas y tres planificadas, incluyendo las limitaciones de cada una | `informe/FUENTES_EXTERNAS.md` |
 
-- Código y comentarios en español, sin tildes en los comentarios (encoding Windows).
-  En Markdown sí van tildes.
-- Los comentarios explican **por qué**, no qué.
-- No usar `except: pass`. Los errores se cuentan y se reportan.
-- Los CSV se guardan con `utf-8-sig`.
-- Cada gráfico va con la pregunta que responde y su lectura.
-- Ningún hallazgo numérico se escribe a mano en los notebooks: se calcula en vivo.
-  Las cifras de este README salen de `reporte_kpis.txt` y del dataset analítico, y
-  se actualizan cuando se reejecuta el pipeline.
-- Los supuestos y umbrales viven en `supuestos.py`, con fuente y fecha. Ningún número
-  de ese tipo se escribe suelto en un script o notebook.
+### Lo que se dejó deliberadamente afuera
+
+- **La función de decisión prescriptiva.** La cátedra indicó que su construcción
+  corresponde a la 3ra entrega y a la final, cuando existan los modelos y resultados
+  para evaluarla. Acá quedan formuladas las preguntas, no resuelta la decisión.
+- **Los contrastes formales de hipótesis.** Cada hipótesis se evalúa por el tamaño del
+  efecto dentro del estrato, sin p-valor ni decisión sobre H₀, y declara el test que la
+  confirmará. La inferencia formal es alcance de la 3ra entrega.
+- **La fusión espacial.** Por eso H2, sobre la distancia al subte, queda pendiente: su
+  método ya estaba declarado en la 1ra entrega y requiere cruzar coordenadas con fuentes
+  externas, que es 3ra entrega.
+
+### Plan para lo pendiente
+
+| Pendiente | Cómo se aborda | Cuándo |
+|---|---|---|
+| Contraste formal de H1, H3 y H4 | Los tests declarados en el notebook 03, con p-valor y decisión sobre H₀ | 3ra entrega |
+| H2 y accesibilidad | Descargar las capas de subte, tren y espacios verdes de BA Data y calcular distancias desde las coordenadas (99,9% de los avisos las tiene) | 3ra entrega |
+| Revisión del modelo de alquiler | Reevaluar predictoras y error por tramo con las variables espaciales | 3ra entrega |
+| Síntesis de atributos y micro-mercados | PCA/MCA sobre las dummies y clustering de propiedades | 3ra entrega |
+| Función de decisión prescriptiva | Resolver P1 a P3 con los criterios ya formulados | Entrega final |
+| Producto para el inversor | Tablero e informe orientados al cliente | Entrega final |
 
 ---
 

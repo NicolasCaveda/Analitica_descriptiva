@@ -7,9 +7,9 @@ venv/
 # ---------------------------------------------------------------------------
 # Datos DERIVADOS intermedios: se regeneran corriendo el pipeline.
 #
-#   py limpieza.py --tc 1500   -> dataset_limpio, dataset_excluidos
-#   py variables.py            -> dataset_variables
-#   py kpis.py                 -> dataset_analitico  <- ESTE SI se versiona
+#   py src/limpieza.py --tc 1500   -> dataset_limpio, dataset_excluidos
+#   py src/variables.py            -> dataset_variables
+#   py src/kpis.py                 -> dataset_analitico  <- ESTE SI se versiona
 #
 # Los intermedios pesan ~60 MB entre los tres y no se pueden mergear.
 # El dataset_analitico.csv, en cambio, es el entregable: es la matriz final

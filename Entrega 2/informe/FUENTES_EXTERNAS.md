@@ -8,7 +8,7 @@ y las que quedan planificadas. Cada una se describe con los mismos campos: qué 
 aporta, cobertura geográfica, período, granularidad, cómo se une con RE/MAX, qué pregunta,
 KPI o hipótesis ayuda a analizar, y sus limitaciones.
 
-Las fuentes integradas se leen con `py fuentes_externas.py`, que deja tablas agregadas y
+Las fuentes integradas se leen con `py src/fuentes_externas.py`, que deja tablas agregadas y
 fechadas en `data/external/`. Los archivos crudos no se versionan (`data/external/raw/`
 está en `.gitignore`): se vuelven a bajar con el script. El agregado versionado congela la
 evidencia, porque algunas fuentes reemplazan sus archivos (Inside Airbnb, cada trimestre).
@@ -22,8 +22,7 @@ Ningún cruce es espacial: todos son por nombre de barrio, por comuna o a nivel 
 | 4 | Censo 2022: departamentos por comuna | Integrada | comuna | Sesgo de representación |
 | 5 | Estadística Ciudad: tiempo medio de publicación | Integrada | ambientes, nivel ciudad | Liquidez (P1, P2) |
 | 6 | IPC del INDEC | Planificada | nivel país, por mes | Lectura en términos reales |
-| 7 | Transporte y espacios verdes (BA Data) | Planificada, 3ra entrega | coordenadas | H2 |
-| 8 | Delitos (BA Data) | Planificada, 3ra entrega | coordenadas o barrio | Riesgo del barrio |
+| 7 | Transporte y espacios verdes (BA Data) | Planificada | coordenadas | H2 |
 
 ---
 
@@ -103,7 +102,7 @@ Ningún cruce es espacial: todos son por nombre de barrio, por comuna o a nivel 
 
 ## El sesgo de usar una sola fuente, cuantificado
 
-`py sesgo.py` mide las dos dimensiones que se pueden contrastar con fuentes oficiales.
+`py src/sesgo.py` mide las dos dimensiones que se pueden contrastar con fuentes oficiales.
 Resultados completos en `data/processed/reporte_sesgo.txt`.
 
 **Precio.** La cartera de RE/MAX publica **más barato** que el promedio de Argenprop en
@@ -155,18 +154,5 @@ mercado de CABA.
 | **Granularidad** | Punto o polígono |
 | **Cómo se une con RE/MAX** | Por coordenadas (`latitud`, `longitud`): es una **fusión espacial**, materia de la 3ra entrega |
 | **Qué ayuda a analizar** | H2: el precio del m² decrece con la distancia al subte |
-| **Limitaciones** | Las capas ya existen en el repositorio de la 1ra entrega (`bocas-de-subte.csv`, `estaciones_ferroviarias.csv`, `espacio_verde_publico.csv`, `espacio_verde_privado.csv`), pero no se usan acá: esta entrega no hace joins espaciales |
+| **Limitaciones** | Las capas todavía no se descargaron: la 1ra entrega las identificó (379 bocas de subte, 301 estaciones ferroviarias y 2.176 espacios verdes públicos) y esta entrega no hace joins espaciales. Se incorporarán a `data/external/` en la 3ra. El cruce es viable porque el 99,9% de los avisos tiene coordenadas |
 | **Fuente** | [Buenos Aires Data](https://data.buenosaires.gob.ar/) |
-
-### 8. Delitos (BA Data)
-
-| Campo | Detalle |
-|---|---|
-| **Variable que aporta** | Cantidad de delitos denunciados por zona |
-| **Cobertura geográfica** | CABA |
-| **Período** | A verificar al integrarla, según la frecuencia de actualización del dataset |
-| **Granularidad** | Hecho georreferenciado, agregable a barrio o comuna |
-| **Cómo se une con RE/MAX** | Por barrio, o por coordenadas en la 3ra entrega |
-| **Qué ayuda a analizar** | El riesgo del barrio como componente de la restricción de riesgo de P2 y de la vacancia |
-| **Limitaciones** | Son delitos denunciados, no ocurridos, y la tasa de denuncia varía entre zonas |
-| **Fuente** | [Buenos Aires Data, delitos](https://data.buenosaires.gob.ar/dataset/delitos) |

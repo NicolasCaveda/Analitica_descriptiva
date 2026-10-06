@@ -2,7 +2,7 @@
 ==========================================================================
 INGENIERIA DE VARIABLES DESDE TEXTO LIBRE
 ==========================================================================
-Fecha        : 2026-09-08 20:44
+Fecha        : 2026-10-06 15:26
 Filas        : 12,097
 Largo del texto por aviso: mediana 1,599 caracteres, minimo 37, maximo 13,911
 Avisos con texto insuficiente (<20 caracteres): 0
@@ -116,5 +116,5 @@ para separar 'el RegEx falla' de 'el atributo no existe en la fuente'.
 
 Filas    : 12,097
 Columnas : 87
-Guardado : data/processed\dataset_variables.csv
-Reporte  : data/processed\reporte_regex.txt
+Guardado : data/processed/dataset_variables.csv
+Reporte  : data/processed/reporte_regex.txt

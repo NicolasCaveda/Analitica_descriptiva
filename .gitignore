@@ -3,6 +3,7 @@ __pycache__/
 .venv/
 venv/
 .env
+.atl/
 
 # Los patrones van con **/ porque cada entrega vive en su propia carpeta y
 # un patron con barra se ancla a la ubicacion de este archivo (la raiz).

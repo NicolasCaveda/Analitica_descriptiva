@@ -2,7 +2,7 @@
 ============================================================================
 MATERIALIZACION DE KPIs
 ============================================================================
-Fecha   : 2026-09-28 19:42
+Fecha   : 2026-10-06 15:26
 Entrada : data/processed/dataset_variables.csv
 Supuestos: vacancia 5.88%, gastos 14.04%
 
@@ -167,8 +167,8 @@ parque chacabuco       201     130,000    1,583      830   7.87%  6.37%
 floresta               133     107,900    1,401      658   7.86%  6.36%
 villa santa rita       102     127,400    1,681      751   7.72%  6.25%
 villa pueyrredon       110     159,500    1,747      943   7.55%  6.12%
-almagro                537     119,000    1,931      688   7.31%  5.91%
 villa devoto           351     197,000    2,077    1,175   7.31%  5.91%
+almagro                537     119,000    1,931      688   7.31%  5.91%
 villa del parque       274     139,000    1,864      811   7.27%  5.88%
 villa crespo           378     119,250    2,126      692   7.08%  5.73%
 caballito              848     145,000    2,078      811   6.82%  5.52%
@@ -288,8 +288,8 @@ a todos. Dejaria de serlo con una vacancia distinta por barrio, que
 este trabajo no mide.
 
 Archivos generados:
-    data/processed\dataset_analitico.csv    (12,097 filas x 98 columnas)
-    data/processed\ranking_barrios.csv
-    data/processed\modelo_alquiler.joblib
-    data/processed\sensibilidad_supuestos.csv
-    data/processed\reporte_kpis.txt
+    data/processed/dataset_analitico.csv    (12,097 filas x 98 columnas)
+    data/processed/ranking_barrios.csv
+    data/processed/modelo_alquiler.joblib
+    data/processed/sensibilidad_supuestos.csv
+    data/processed/reporte_kpis.txt
