@@ -46,6 +46,22 @@ py -m nbconvert --to notebook --execute --inplace 02_ingenieria_variables.ipynb
 py -m nbconvert --to notebook --execute --inplace 03_eda.ipynb
 ```
 
+### Si solo se quieren correr los notebooks
+
+Los tres notebooks están guardados **con sus salidas**, así que se leen sin ejecutar
+nada. Para volver a ejecutarlos después de clonar el repositorio alcanza con un solo
+script:
+
+```bash
+py limpieza.py --tc 1500
+```
+
+El notebook 01 narra la limpieza y para eso lee `dataset_limpio.csv` y
+`dataset_excluidos.csv`, que son intermedios: pesan unos 60 MB entre los dos y no se
+versionan, se regeneran. Los notebooks 02 y 03 corren tal cual, sin ningún script
+previo, porque todo lo que leen —`dataset_analitico.csv`, las tablas de
+`data/external/`, `sesgo_*.csv` y `temporal_vs_tradicional.csv`— sí está versionado.
+
 ---
 
 ## Pipeline

@@ -215,6 +215,37 @@ def leer_asimetria(valor: float) -> str:
             f"y hay que leer la mediana")
 
 
+# El dataset guarda los barrios en minuscula y sin tildes porque asi los
+# normaliza la limpieza, y asi tienen que quedar para que los joins funcionen.
+# Para mostrarlos en un texto o en un eje hace falta el nombre oficial. Estas
+# son las unicas nueve excepciones que `.title()` no resuelve: ocho por tilde y
+# "villa del parque", donde el articulo va en minuscula.
+BARRIOS_NOMBRE = {
+    "agronomia": "Agronomía",
+    "constitucion": "Constitución",
+    "nunez": "Núñez",
+    "san cristobal": "San Cristóbal",
+    "san nicolas": "San Nicolás",
+    "velez sarsfield": "Vélez Sarsfield",
+    "villa del parque": "Villa del Parque",
+    "villa ortuzar": "Villa Ortúzar",
+    "villa pueyrredon": "Villa Pueyrredón",
+}
+
+
+def nombre_barrio(barrio) -> str:
+    """Nombre oficial del barrio para mostrar. No toca el dato, solo la vista."""
+    if barrio is None or (isinstance(barrio, float) and pd.isna(barrio)):
+        return "sin dato"
+    clave = str(barrio).strip().lower()
+    return BARRIOS_NOMBRE.get(clave, clave.title())
+
+
+def nombres_barrio(barrios) -> list:
+    """La version lista, para ejes y enumeraciones."""
+    return [nombre_barrio(b) for b in barrios]
+
+
 def frecuencias(serie: pd.Series, top: int = 15) -> pd.DataFrame:
     """Tabla de frecuencias absolutas, relativas y acumuladas."""
     vc = serie.value_counts(dropna=False).head(top)

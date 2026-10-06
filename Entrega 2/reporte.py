@@ -146,7 +146,8 @@ def calcular() -> dict:
     rank = ok.groupby("barrio").agg(n=("rent_neta_pct", "size"), neta=("rent_neta_pct", "median"))
     rank = rank[rank.n >= S.MIN_VENTAS_BARRIO]
     r.update(n_barrios=len(rank), barrios_sobre_piso=int((rank.neta >= piso).sum()),
-             barrios_sobre_piso_lista=", ".join(rank[rank.neta >= piso].index.tolist()) or "ninguno")
+             barrios_sobre_piso_lista=", ".join(
+                 eda.nombres_barrio(rank[rank.neta >= piso].index)) or "ninguno")
 
     # --- 2. Temporal -------------------------------------------------------
     r.update(tv_celdas=len(tv), tv_gana_base=int(tv.gana_temporal_base.sum()),
@@ -185,8 +186,10 @@ def calcular() -> dict:
         iqr = g.quantile(.75) - g.quantile(.25)
         ratios.append(iqr.max() / (g.median().max() - g.median().min()))
     med_mkt = ok.rent_bruta_pct.median()
-    r.update(entre=b.mediana.max() - b.mediana.min(), barrio_alto=b.mediana.idxmax(),
-             barrio_bajo=b.mediana.idxmin(), iqr_max=b.IQR.max(), iqr_max_barrio=b.IQR.idxmax(),
+    r.update(entre=b.mediana.max() - b.mediana.min(),
+             barrio_alto=eda.nombre_barrio(b.mediana.idxmax()),
+             barrio_bajo=eda.nombre_barrio(b.mediana.idxmin()),
+             iqr_max=b.IQR.max(), iqr_max_barrio=eda.nombre_barrio(b.IQR.idxmax()),
              iqr_med=b.IQR.median(), ratio_tramo_min=min(ratios), ratio_tramo_max=max(ratios),
              solapan=((ok.rent_bruta_min <= med_mkt) & (ok.rent_bruta_max >= med_mkt)).mean() * 100,
              err_med=ok.error_estimacion.median() * 100)

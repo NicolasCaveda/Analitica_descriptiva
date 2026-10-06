@@ -2,7 +2,7 @@
 
 **TP Integrador · 82.04 Analítica Descriptiva (ITBA) · Grupo 2**
 
-*Generado por `py reporte.py` el 30-09-2026. Cada cifra de este documento se calcula al generarlo a partir de `data/processed/` y `data/external/`: si se reejecuta el pipeline, el informe se regenera con los números nuevos.*
+*Generado por `py reporte.py` el 05-10-2026. Cada cifra de este documento se calcula al generarlo a partir de `data/processed/` y `data/external/`: si se reejecuta el pipeline, el informe se regenera con los números nuevos.*
 
 **Cliente:** un pequeño inversor con ahorros en dólares que compra **una sola unidad** en CABA para alquilarla, con un presupuesto de USD 80.000 a USD 200.000. **Base:** 9.203 departamentos, casas y PH en venta de la cartera de RE/MAX, relevados entre el 16-08-2026 y el 17-08-2026, con alquiler estimado confiable.
 
@@ -21,7 +21,7 @@ La rentabilidad **neta** mediana (después de 5,88% de vacancia y 14,04% de gast
 | Neta, solo dentro del presupuesto | 5,56% | 14,6% |
 | Neta en el extremo optimista de la banda de error (KPI 4) | — | 33,8% |
 
-De los 29 barrios con 30 o más ventas, 1 tiene una neta mediana sobre el piso (constitucion). La comparación es contra un instrumento que paga en dólares, cotiza en bolsa y no tiene vacancia, inquilino ni expensas extraordinarias.
+De los 29 barrios con 30 o más ventas, 1 tiene una neta mediana sobre el piso (Constitución). La comparación es contra un instrumento que paga en dólares, cotiza en bolsa y no tiene vacancia, inquilino ni expensas extraordinarias.
 
 **El resultado depende poco de los supuestos en el nivel, pero mucho en el umbral.** Recorriendo vacancia de 4% a 12% y gastos de 8% a 16%, la neta mediana se mueve entre 5,18% y 6,19%: en ningún escenario alcanza el piso. Lo que sí cambia es cuántos barrios lo superan: de 10 en el escenario más favorable a 1 en el más adverso.
 
@@ -49,7 +49,7 @@ El precio está en el denominador de la rentabilidad. Si la unidad se comprara a
 
 ## 4. Elegir la propiedad pesa tanto como elegir el barrio
 
-Entre el barrio que más rinde (constitucion) y el que menos (palermo) hay 3,95 pp de rentabilidad bruta mediana. El rango intercuartil **dentro** de un solo barrio llega a 3,89 pp (barracas), y el mediano es 2,18 pp. No es mezcla de tamaños: dentro de cada rango de superficie, la dispersión interna máxima de un barrio equivale a entre 72% y 164% de la distancia entre barrios.
+Entre el barrio que más rinde (Constitución) y el que menos (Palermo) hay 3,95 pp de rentabilidad bruta mediana. El rango intercuartil **dentro** de un solo barrio llega a 3,89 pp (Barracas), y el mediano es 2,18 pp. No es mezcla de tamaños: dentro de cada rango de superficie, la dispersión interna máxima de un barrio equivale a entre 72% y 164% de la distancia entre barrios.
 
 Pero la estimación tiene su propio error, de 12,3% mediano: para el 41,7% de las propiedades, la banda de incertidumbre contiene la mediana del mercado, y su diferencia contra el promedio no se distingue del ruido.
 
