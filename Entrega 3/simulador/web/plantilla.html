@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador: ¿conviene comprar para alquilar?</title>
+<!-- Generado por simular.py --html a partir de web/plantilla.html y web/motor.js. No editar a mano. -->
+<style>
+  :root {
+    --tinta: #30343F; --tinta-2: #5d6170; --contexto: #778472;
+    --fondo: #FFFFFF; --fondo-2: #E8EEF7; --borde: #D5DCE6; --grilla: #E3E7EE;
+    --banda: #FFD275; --principal: #2F68B0; --alerta: #C08A1E; --secundario: #4A7F3A;
+    --error: #A33A2B;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--tinta); background: var(--fondo); }
+  header { background: var(--tinta); color: #fff; padding: 14px 24px; }
+  header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  header p { margin: 2px 0 0; font-size: 13px; opacity: .85; }
+  .limites { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 24px; border-bottom: 1px solid var(--borde); }
+  .chip { background: var(--fondo-2); border-radius: 999px; padding: 3px 10px; font-size: 12.5px; }
+  main { display: grid; grid-template-columns: 330px 1fr; gap: 24px; padding: 20px 24px 32px; max-width: 1280px; margin: 0 auto; }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+
+  /* Formulario */
+  aside { background: var(--fondo-2); border-radius: 10px; padding: 16px; align-self: start; position: sticky; top: 12px; }
+  aside h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 10px; color: var(--tinta-2); }
+  aside h2:not(:first-child) { margin-top: 18px; }
+  label.campo { display: grid; grid-template-columns: 1fr 120px; align-items: center; gap: 8px; margin: 6px 0; font-size: 14px; }
+  input[type=number], select { width: 100%; padding: 6px 8px; border: 1px solid var(--borde); border-radius: 6px; font: inherit; color: var(--tinta); background: #fff; }
+  select#barrio { grid-column: 1 / -1; }
+  input:focus, select:focus { outline: 2px solid var(--principal); outline-offset: 1px; }
+  .segmentado { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--borde); border-radius: 6px; overflow: hidden; margin: 6px 0; }
+  .segmentado input { position: absolute; opacity: 0; pointer-events: none; }
+  .segmentado label { text-align: center; padding: 6px 0; background: #fff; cursor: pointer; font-size: 14px; }
+  .segmentado label + input + label, .segmentado input + label ~ label { border-left: 1px solid var(--borde); }
+  .segmentado input:checked + label { background: var(--tinta); color: #fff; }
+  .segmentado input:focus-visible + label { outline: 2px solid var(--principal); outline-offset: -2px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips input { position: absolute; opacity: 0; pointer-events: none; }
+  .chips label { border: 1px solid var(--borde); background: #fff; border-radius: 999px; padding: 3px 10px; font-size: 13px; cursor: pointer; user-select: none; }
+  .chips input:checked + label { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+  .chips input:focus-visible + label { outline: 2px solid var(--principal); }
+  .ayuda { font-size: 12.5px; color: var(--tinta-2); margin: 4px 0 0; }
+  .errores { color: var(--error); font-size: 13px; margin: 8px 0 0; }
+  details { margin-top: 14px; font-size: 14px; }
+  summary { cursor: pointer; color: var(--tinta-2); }
+  button.secundario { margin-top: 12px; width: 100%; padding: 7px; border: 1px solid var(--tinta); background: #fff; color: var(--tinta); border-radius: 6px; font: inherit; cursor: pointer; }
+  button.secundario:hover { background: var(--tinta); color: #fff; }
+
+  /* Resultados */
+  section.resultados { min-width: 0; }
+  .tarjeta { border: 1px solid var(--borde); border-radius: 10px; padding: 16px 18px; margin-bottom: 16px; }
+  .tarjeta h2 { font-size: 16px; margin: 0 0 4px; }
+  .tarjeta .sub { color: var(--tinta-2); font-size: 13.5px; margin: 0 0 12px; }
+  .grande { font-size: 30px; font-weight: 650; letter-spacing: -.01em; }
+  .grande small { font-size: 15px; font-weight: 400; color: var(--tinta-2); }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  @media (max-width: 1100px) { .tiles { grid-template-columns: repeat(2, 1fr); } }
+  .tile { background: var(--fondo-2); border-left: 4px solid var(--principal); border-radius: 4px; padding: 10px 12px; }
+  .tile .etq { font-size: 13px; color: var(--tinta-2); }
+  .tile .val { font-size: 24px; font-weight: 650; }
+  .tile .det { font-size: 12.5px; color: var(--tinta-2); }
+  .aviso { border-left: 4px solid var(--alerta); background: #FBF4E6; padding: 8px 12px; border-radius: 4px; font-size: 14px; margin: 10px 0 0; }
+  .veredicto { display: grid; grid-template-columns: 130px 1fr; gap: 6px 14px; margin: 0; }
+  .veredicto dt { font-weight: 600; }
+  .veredicto dd { margin: 0; }
+  .sello { display: inline-block; font-weight: 700; font-size: 12.5px; letter-spacing: .03em; padding: 1px 8px; border-radius: 4px; margin-right: 6px; }
+  .sello.pasa { background: var(--alerta); color: #fff; }
+  .sello.no { background: var(--tinta); color: #fff; }
+  .sello.fuera { background: #B9BCC4; color: var(--tinta); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  td, th { padding: 6px 8px; border-bottom: 1px solid var(--grilla); text-align: left; vertical-align: top; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  th { font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--tinta-2); font-weight: 600; }
+  .vacio { color: var(--tinta-2); font-style: italic; }
+
+  /* Grafico */
+  .grafico { position: relative; }
+  .grafico svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .grafico text { font: 12.5px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: var(--tinta); }
+  .grafico .eje text { fill: var(--tinta-2); }
+  .leyenda { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--tinta-2); margin: 0 0 6px; }
+  .leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .sw.barra { width: 18px; height: 8px; border-radius: 4px; }
+  .tooltip { position: absolute; pointer-events: none; background: var(--tinta); color: #fff; font-size: 13px; padding: 5px 9px; border-radius: 5px; white-space: nowrap; transform: translate(-50%, calc(-100% - 10px)); opacity: 0; transition: opacity .08s; }
+  footer { max-width: 1280px; margin: 0 auto; padding: 0 24px 28px; font-size: 12.5px; color: var(--tinta-2); }
+</style>
+</head>
+<body>
+<header>
+  <h1>¿Conviene comprar esta propiedad para alquilarla?</h1>
+  <p id="origen"></p>
+</header>
+<div class="limites" aria-label="Limitaciones">
+  <span class="chip" title="Los avisos muestran el precio pedido, no el de cierre.">Precios de publicación</span>
+  <span class="chip" title="Es la cartera de RE/MAX, que publica alrededor de 8% más barato que el mercado: las rentabilidades probablemente están del lado alto.">Una sola inmobiliaria, ~8% más barata</span>
+  <span class="chip" title="El alquiler es estimado: cada rentabilidad es una banda, no un número.">Cada rentabilidad es una banda</span>
+  <span class="chip" title="La TIR supone revender al mismo precio en dólares; el riesgo legal no tiene una fuente que lo cuantifique.">Sin apreciación ni riesgo legal</span>
+</div>
+
+<main>
+  <aside>
+    <form id="form" autocomplete="off" onsubmit="return false">
+      <h2>La propiedad</h2>
+      <label class="campo" for="barrio" style="grid-template-columns:1fr">Barrio
+        <select id="barrio" name="barrio"></select>
+      </label>
+      <div class="segmentado" role="radiogroup" aria-label="Tipo">
+        <input type="radio" name="tipo_familia" id="t-dep" value="departamento" checked><label for="t-dep">Depto.</label>
+        <input type="radio" name="tipo_familia" id="t-ph" value="ph"><label for="t-ph">PH</label>
+        <input type="radio" name="tipo_familia" id="t-casa" value="casa"><label for="t-casa">Casa</label>
+      </div>
+      <label class="campo">Superficie total (m²)<input type="number" name="sup_total_m2" step="1" value="50"></label>
+      <label class="campo">Ambientes<input type="number" name="ambientes" step="1" value="2"></label>
+      <label class="campo">Dormitorios<input type="number" name="dormitorios" step="1" value="1"></label>
+      <label class="campo">Baños<input type="number" name="banos" step="1" value="1"></label>
+      <label class="campo">Antigüedad (años)<input type="number" name="antiguedad_anios" step="1" value="30"></label>
+      <p class="ayuda">0 = a estrenar. Si un dato queda vacío, el modelo usa el valor típico.</p>
+
+      <h2>Características</h2>
+      <div class="chips" id="caracteristicas"></div>
+
+      <h2>La operación</h2>
+      <label class="campo">Precio de venta (USD)<input type="number" name="venta_usd" step="1000" value="110000" placeholder="opcional"></label>
+      <p class="ayuda">Sin precio, solo se estima el alquiler.</p>
+
+      <details>
+        <summary>Supuestos</summary>
+        <label class="campo">Vacancia (% del año)<input type="number" name="vacancia" step="0.5" min="0" max="50"></label>
+        <p class="ayuda" id="ayuda-vacancia"></p>
+      </details>
+      <div class="errores" id="errores" role="alert"></div>
+      <button type="button" class="secundario" id="restablecer">Restablecer</button>
+    </form>
+  </aside>
+
+  <section class="resultados" aria-live="polite">
+    <div class="tarjeta" id="t-alquiler"></div>
+    <div id="con-precio"></div>
+  </section>
+</main>
+
+<footer id="pie"></footer>
+
+<script>
+/*__DATOS__*/
+</script>
+<script>
+/*__MOTOR__*/
+</script>
+<script>
+"use strict";
+const M = DATOS.modelo;
+const P = DATOS.parametros;
+const S = P.supuestos;
+const [PISO, TECHO] = S.retorno_minimo_pct;
+const C = { principal: "#2F68B0", alerta: "#C08A1E", contexto: "#778472", banda: "#FFD275", grilla: "#E3E7EE", tinta: "#30343F" };
+
+// --- Formato argentino ------------------------------------------------------
+const nf = (d) => new Intl.NumberFormat("es-AR", { minimumFractionDigits: d, maximumFractionDigits: d });
+const num = (x, d = 0) => (Number.isFinite(x) ? nf(d).format(x) : "—");
+const pct = (x, d = 2) => (Number.isFinite(x) ? `${num(x, d)}%` : "—");
+const usd = (x) => (Number.isFinite(x) ? `USD ${num(x)}` : "—");
+const signo = (x, d = 0) => (x >= 0 ? "+" : "") + num(x, d);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const nombre = (b) => P.nombre_barrio[b] || b;
+
+// --- Formulario ---------------------------------------------------------------
+const form = document.getElementById("form");
+const sel = document.getElementById("barrio");
+[...P.barrios].sort((a, b) => nombre(a).localeCompare(nombre(b), "es"))
+  .forEach((b) => sel.add(new Option(nombre(b), b, false, b === "caballito")));
+const chips = document.getElementById("caracteristicas");
+for (const [c, n] of Object.entries(DATOS.caracteristicas)) {
+  chips.insertAdjacentHTML("beforeend",
+    `<input type="checkbox" id="c-${c}" name="${c}"><label for="c-${c}">${esc(n)}</label>`);
+}
+form.vacancia.value = S.vacancia_pct;
+document.getElementById("ayuda-vacancia").textContent =
+  `Base: ${pct(S.vacancia_pct)}, un mes vacío por cada contrato de dos años. Gastos fijos del propietario: ` +
+  `${pct(S.gastos_sin_abl_pct)} del alquiler, más el ABL de la propiedad.`;
+const INICIAL = new URLSearchParams(new FormData(form)).toString();
+
+const ETIQUETAS = { sup_total_m2: "Superficie", ambientes: "Ambientes", dormitorios: "Dormitorios",
+  banos: "Baños", antiguedad_anios: "Antigüedad", venta_usd: "Precio de venta" };
+
+function leerFormulario() {
+  const f = new FormData(form);
+  const numero = (k) => (f.get(k) === "" || f.get(k) === null ? NaN : Number(f.get(k)));
+  const prop = {
+    barrio: f.get("barrio"), tipo_familia: f.get("tipo_familia"),
+    sup_total_m2: numero("sup_total_m2"), ambientes: numero("ambientes"), dormitorios: numero("dormitorios"),
+    banos: numero("banos"), antiguedad_anios: numero("antiguedad_anios"), venta_usd: numero("venta_usd"),
+  };
+  for (const c of Object.keys(DATOS.caracteristicas)) prop[c] = f.get(c) ? 1 : 0;
+  const errores = [];
+  if (!Number.isFinite(prop.sup_total_m2)) errores.push("Falta la superficie.");
+  for (const [k, [lo, hi]] of Object.entries(DATOS.rangos)) {
+    const x = prop[k];
+    if (Number.isFinite(x) && (x < lo || x > hi)) errores.push(`${ETIQUETAS[k]}: entre ${num(lo)} y ${num(hi)}.`);
+  }
+  let vac = numero("vacancia");
+  if (!Number.isFinite(vac)) vac = S.vacancia_pct;
+  if (vac < 0 || vac >= 100) errores.push("Vacancia: entre 0 y 99%.");
+  return { prop, vac, errores };
+}
+
+// --- Grafico: neta y TIR contra la banda de retorno ----------------------------
+const tooltip = document.createElement("div");
+tooltip.className = "tooltip";
+
+function grafico(r) {
+  const filas = [
+    { nombre: "Rentabilidad neta", sub: "anual, banda p10–p90", lo: r.neta_min_pct, c: r.rent_neta_pct, hi: r.neta_max_pct,
+      mercado: P.mercado.neta_mediana_pct },
+    { nombre: "TIR a 5 años", sub: "con costos de entrada", lo: r.tir_5a_min_pct, c: r.tir_5a_pct, hi: NaN,
+      mercado: P.mercado.tir_mediana_pct },
+  ];
+  const vals = filas.flatMap((f) => [f.lo, f.c, f.hi, f.mercado]).filter(Number.isFinite).concat([PISO, TECHO]);
+  const paso = Math.max(...vals) - Math.min(0, ...vals) > 16 ? 4 : 2;
+  const x0 = Math.min(0, Math.floor(Math.min(...vals) / paso) * paso);
+  const x1 = Math.max(10, Math.ceil((Math.max(...vals) + 0.5) / paso) * paso);
+  const W = 680, izq = 150, der = 16, arriba = 30, alto = 54, H = arriba + filas.length * alto + 26;
+  const x = (v) => izq + ((v - x0) / (x1 - x0)) * (W - izq - der);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rentabilidad neta y TIR de la propiedad contra la banda de retorno mínimo">`;
+  // banda de retorno minimo
+  s += `<rect x="${x(PISO)}" y="${arriba - 6}" width="${x(TECHO) - x(PISO)}" height="${filas.length * alto + 6}" fill="${C.banda}" opacity=".75"/>`;
+  s += `<text x="${(x(PISO) + x(TECHO)) / 2}" y="${arriba - 12}" text-anchor="middle" font-size="12">ON en USD ${num(PISO, 2)}–${num(TECHO, 2)}%</text>`;
+  // grilla y eje
+  s += `<g class="eje">`;
+  for (let v = x0; v <= x1 + 1e-9; v += paso) {
+    s += `<line x1="${x(v)}" x2="${x(v)}" y1="${arriba - 6}" y2="${arriba + filas.length * alto}" stroke="${C.grilla}" stroke-width="1"/>`;
+    s += `<text x="${x(v)}" y="${H - 6}" text-anchor="middle">${num(v)}%</text>`;
+  }
+  s += `</g>`;
+  filas.forEach((f, i) => {
+    const y = arriba + i * alto + alto / 2;
+    s += `<text x="0" y="${y - 3}" font-weight="600">${f.nombre}</text><text x="0" y="${y + 13}" class="eje" fill="#5d6170" font-size="11.5">${f.sub}</text>`;
+    const hasta = Number.isFinite(f.hi) ? f.hi : f.c;
+    if (Number.isFinite(f.lo) && Number.isFinite(hasta)) {
+      s += `<line x1="${x(f.lo)}" x2="${x(hasta)}" y1="${y}" y2="${y}" stroke="${C.principal}" stroke-opacity=".28" stroke-width="10" stroke-linecap="round"/>`;
+    }
+    // mediana del mercado: marca de contexto
+    s += `<line x1="${x(f.mercado)}" x2="${x(f.mercado)}" y1="${y - 13}" y2="${y + 13}" stroke="${C.contexto}" stroke-width="2"
+      data-tip="Mediana del mercado: ${pct(f.mercado)}"/>`;
+    const punto = (v, color, r_, tip) => Number.isFinite(v)
+      ? `<circle cx="${x(v)}" cy="${y}" r="${r_}" fill="${color}" stroke="#fff" stroke-width="2"/>` +
+        `<circle cx="${x(v)}" cy="${y}" r="13" fill="transparent" data-tip="${tip}"/>` : "";
+    if (Number.isFinite(f.hi)) s += punto(f.hi, C.principal, 4, `${f.nombre} optimista (p90): ${pct(f.hi)}`);
+    s += punto(f.lo, C.alerta, 5, `${f.nombre} pesimista (p10): ${pct(f.lo)}`);
+    s += punto(f.c, C.principal, 6, `${f.nombre} central: ${pct(f.c)}`);
+    if (Number.isFinite(f.c)) s += `<text x="${x(f.c)}" y="${y - 12}" text-anchor="middle" font-weight="600">${pct(f.c)}</text>`;
+  });
+  s += `</svg>`;
+  return s;
+}
+
+function activarTooltips(cont) {
+  cont.appendChild(tooltip);
+  cont.querySelectorAll("[data-tip]").forEach((el) => {
+    el.addEventListener("mouseenter", () => { tooltip.textContent = el.dataset.tip; tooltip.style.opacity = 1; });
+    el.addEventListener("mousemove", (e) => {
+      const b = cont.getBoundingClientRect();
+      tooltip.style.left = `${e.clientX - b.left}px`; tooltip.style.top = `${e.clientY - b.top}px`;
+    });
+    el.addEventListener("mouseleave", () => { tooltip.style.opacity = 0; });
+  });
+}
+
+// --- Render -------------------------------------------------------------------
+function avisos(prop, r) {
+  let h = "";
+  if (!r.estimacion_confiable) {
+    h += `<p class="aviso">${esc(nombre(prop.barrio))} tiene ${r.n_alq_barrio} alquileres en la muestra (menos de ${S.min_alq_barrio}): la estimación extrapola desde otros barrios y el análisis no la considera confiable.</p>`;
+  }
+  if (!r.en_soporte_modelo) {
+    h += `<p class="aviso">Hay ${r.n_alq_celda_tipo} alquileres de ${esc(prop.tipo_familia)} de ${esc(r.superficie_rango ?? "ese tamaño")} m² (menos de ${S.min_alq_soporte}). Fuera del soporte del modelo, el alquiler es extrapolación y la decisión no la recomienda.</p>`;
+  }
+  return h;
+}
+
+function renderAlquiler(prop, r) {
+  const dif = (r.alquiler_est_usd_mes / r.referencia_barrio_usd_mes - 1) * 100;
+  let h = `<h2>Alquiler estimado</h2>
+    <p class="sub">${esc(nombre(prop.barrio))} · ${esc(prop.tipo_familia)} de ${num(prop.sup_total_m2)} m² · basado en ${r.n_alq_barrio} alquileres del barrio</p>
+    <div class="grande">${usd(r.alquiler_est_usd_mes)} <small>por mes · USD ${num(r.alquiler_est_m2, 1)} por m²</small></div>
+    <p style="margin:6px 0 0">Banda p10–p90: <b>${usd(r.alquiler_p10_usd_mes)} a ${usd(r.alquiler_p90_usd_mes)}</b>
+      <span class="ayuda" style="display:inline"> · fuera de muestra, 8 de cada 10 alquileres reales caen en su banda</span></p>`;
+  if (Number.isFinite(dif)) {
+    h += `<p class="ayuda">Con el alquiler mediano por m² del barrio daría ${usd(r.referencia_barrio_usd_mes)}; el modelo estima ${signo(dif)}% por las características de la propiedad.</p>`;
+  }
+  if (Number.isFinite(r.alquiler_post_refaccion_usd_mes)) {
+    const sube = (r.alquiler_post_refaccion_usd_mes / r.alquiler_est_usd_mes - 1) * 100;
+    h += `<p style="margin:6px 0 0">Refaccionada: <b>${usd(r.alquiler_post_refaccion_usd_mes)}</b> por mes (${signo(sube)}%).</p>`;
+  }
+  return h + avisos(prop, r);
+}
+
+function renderDecision(prop, r) {
+  const umbral = TECHO + S.margen_liquidez_pct;
+  const faltan = [];
+  if (!r.en_presupuesto) faltan.push(`está fuera del presupuesto del inversor (${usd(S.presupuesto_usd[0])} a ${usd(S.presupuesto_usd[1])})`);
+  if (!r.estimacion_confiable) faltan.push("su barrio tiene pocos alquileres");
+  if (!r.en_soporte_modelo) faltan.push("está fuera del soporte del modelo");
+  let p1;
+  if (faltan.length) {
+    p1 = `<span class="sello fuera">FUERA DEL UNIVERSO</span>${faltan.join("; ")}. Su neta pesimista es ${pct(r.neta_min_pct)}, contra un umbral de ${pct(umbral)}.`;
+  } else if (r.p1_comprar) {
+    p1 = `<span class="sello pasa">PASA · A VERIFICAR</span>La neta pesimista (${pct(r.neta_min_pct)}) supera ${pct(umbral)}. No es una recomendación de compra: las que pasan suelen ser más baratas que su celda por algo que el aviso no dice. Con costos de entrada ${r.p1_comprar_con_entrada ? "también pasa" : "ya no pasa"} (TIR pesimista ${pct(r.tir_5a_min_pct)}).`;
+  } else {
+    p1 = `<span class="sello no">NO PASA</span>La neta pesimista (${pct(r.neta_min_pct)}) no supera el techo de la banda (${pct(umbral)}).`;
+  }
+  const nU = num(P.mercado.n_universo);
+  const p2 = faltan.length ? `<span class="vacio">Solo se compara dentro del universo de la decisión.</span>`
+    : (r.p2_la_superan === 0
+      ? `Entraría en la lista corta: ninguna de las ${nU} propiedades del universo la supera con claridad (sus bandas se superponen).`
+      : `${num(r.p2_la_superan)} de ${nU} propiedades del universo la superan con claridad: su neta pesimista está arriba de la optimista de esta.`)
+      + ` Esta supera con claridad a ${num(r.p2_supera_a)}.`;
+  const p3 = Number.isFinite(r.p3_equilibrio_tercerizada_pct)
+    ? `El temporal empata con ${pct(r.p3_equilibrio_tercerizada_pct, 1)} de ocupación tercerizado (${pct(r.p3_equilibrio_autogestion_pct, 1)} autogestionado). Inside Airbnb mide ${pct(r.p3_ocupacion_airbnb_pct, 1)} en esa celda y la prensa, ${pct(S.ocupacion_ref_pct, 0)} para CABA: <b>conviene el tradicional</b>, salvo autogestión con evidencia de más de la mitad del año ocupado.`
+    : `<span class="vacio">No hay datos de alquiler temporario para esa celda barrio × dormitorios.</span>`;
+  const liq = Number.isFinite(r.dias_publicacion_ambientes)
+    ? `Un aviso con esos ambientes pasa unos ${num(r.dias_publicacion_ambientes)} días publicado (IDECBA, toda la Ciudad).`
+    : `<span class="vacio">Sin dato.</span>`;
+  return `<h2>Decisión</h2>
+    <p class="sub">Los criterios de la función de decisión de la 3ra pre-entrega</p>
+    <dl class="veredicto">
+      <dt>P1 · ¿Comprar?</dt><dd>${p1}</dd>
+      <dt>P2 · ¿Cuál?</dt><dd>${p2}</dd>
+      <dt>P3 · ¿Temporal?</dt><dd>${p3}</dd>
+      <dt>Liquidez</dt><dd>${liq}</dd>
+    </dl>`;
+}
+
+function renderDesglose(prop, r, vac) {
+  const filas = [
+    ["Precio de venta", `${usd(r.venta_usd)} · ${usd(r.venta_m2_usd)} por m²`],
+    ["Contra su celda", Number.isFinite(r.m2_relativo_celda)
+      ? `su m² vale ${num(r.m2_relativo_celda, 2)} veces el mediano de ${esc(nombre(prop.barrio))}, ${esc(r.superficie_rango)} m²` : "—"],
+    ["Rentabilidad bruta", `${pct(r.rent_bruta_pct)} · banda ${pct(r.rent_bruta_min)} a ${pct(r.rent_bruta_max)}`],
+    ["ABL", `ARS ${num(r.abl_ars_mes)} por mes · ${pct(r.abl_pct)} del alquiler (Ley 6927, con la valuación fiscal aproximada)`],
+    ["Gastos del propietario", `${pct(r.gastos_pct)} del alquiler: el ABL más ${pct(S.gastos_sin_abl_pct)} de administración, expensas extraordinarias y mantenimiento`],
+    ["Vacancia", pct(vac)],
+    ["Rentabilidad neta", `${pct(r.rent_neta_pct)} · banda ${pct(r.neta_min_pct)} a ${pct(r.neta_max_pct)}`],
+    ["Costos de entrada", `${pct(r.costos_entrada_pct)} del precio, ${usd(r.costos_entrada_pct / 100 * r.venta_usd)} (comisión, escribano, certificados y la mitad de Sellos) · escenario alto ${pct(r.costos_entrada_alto_pct)}`],
+  ];
+  if (r.refaccion_usd > 0) {
+    filas.push(["Refacción", `mínima ${usd(r.refaccion_usd)} (baño, cocina y pintura) · integral ${usd(r.refaccion_integral_usd)}`]);
+  }
+  filas.push(["TIR a 5 años", `${pct(r.tir_5a_pct)} · pesimista ${pct(r.tir_5a_min_pct)} · reventa al mismo precio en dólares, sin apreciación ni costos de salida`]);
+  filas.push(["Repago", `${num(r.meses_repago)} meses (${num(r.meses_repago / 12, 1)} años)`]);
+  return `<h2>Desglose</h2><p class="sub">Todas las cifras, con sus supuestos</p>
+    <table><tbody>${filas.map(([a, b]) => `<tr><th scope="row">${a}</th><td>${b}</td></tr>`).join("")}</tbody></table>`;
+}
+
+function render() {
+  const { prop, vac, errores } = leerFormulario();
+  document.getElementById("errores").innerHTML = errores.map(esc).join("<br>");
+  const tA = document.getElementById("t-alquiler");
+  const cp = document.getElementById("con-precio");
+  if (errores.length) {
+    tA.innerHTML = `<p class="vacio">Corregí los datos marcados para ver la estimación.</p>`;
+    cp.innerHTML = "";
+    return;
+  }
+  // En un visor embebido (iframe con sandbox) puede estar prohibido: la pagina sigue igual
+  try { history.replaceState(null, "", "#" + new URLSearchParams(new FormData(form)).toString()); } catch (e) { /* sin enlace */ }
+  const r = Motor.simular(prop, M, P, vac);
+  tA.innerHTML = renderAlquiler(prop, r);
+  if (!Number.isFinite(prop.venta_usd)) {
+    cp.innerHTML = `<div class="tarjeta"><p class="vacio" style="margin:0">Cargá el precio de venta para ver la rentabilidad, la TIR y la decisión.</p></div>`;
+    return;
+  }
+  let lectura;
+  if (r.rent_neta_pct >= TECHO) lectura = "supera el techo de la banda de retorno";
+  else if (r.rent_neta_pct >= PISO) lectura = "queda dentro de la banda de retorno";
+  else lectura = `queda ${num(PISO - r.rent_neta_pct, 2)} puntos debajo del piso de la banda`;
+  cp.innerHTML = `
+    <div class="tiles">
+      <div class="tile"><div class="etq">Rentabilidad neta</div><div class="val">${pct(r.rent_neta_pct)}</div>
+        <div class="det">banda ${pct(r.neta_min_pct)} a ${pct(r.neta_max_pct)}</div></div>
+      <div class="tile"><div class="etq">TIR a 5 años</div><div class="val">${pct(r.tir_5a_pct)}</div>
+        <div class="det">pesimista ${pct(r.tir_5a_min_pct)}</div></div>
+      <div class="tile"><div class="etq">Rentabilidad bruta</div><div class="val">${pct(r.rent_bruta_pct)}</div>
+        <div class="det">antes de gastos y vacancia</div></div>
+      <div class="tile"><div class="etq">Repago</div><div class="val">${num(r.meses_repago / 12, 1)} años</div>
+        <div class="det">${num(r.meses_repago)} meses de alquiler</div></div>
+    </div>
+    <div class="tarjeta">
+      <h2>¿Le gana a una obligación negociable en dólares?</h2>
+      <p class="sub">La neta central ${lectura}; con los costos de comprar, la TIR es ${pct(r.tir_5a_pct)}.</p>
+      <div class="leyenda">
+        <span><i class="sw" style="background:${C.principal}"></i>central</span>
+        <span><i class="sw" style="background:${C.alerta}"></i>pesimista (p10)</span>
+        <span><i class="sw barra" style="background:${C.principal};opacity:.28"></i>banda p10–p90</span>
+        <span><i class="sw barra" style="background:${C.contexto};width:2px;height:12px;border-radius:0"></i>mediana del mercado</span>
+        <span><i class="sw barra" style="background:${C.banda}"></i>banda de retorno mínimo</span>
+      </div>
+      <div class="grafico" id="grafico">${grafico(r)}</div>
+    </div>
+    <div class="tarjeta">${renderDecision(prop, r)}</div>
+    <div class="tarjeta">${renderDesglose(prop, r, vac)}</div>`;
+  activarTooltips(document.getElementById("grafico"));
+}
+
+// Estado en la URL: el enlace reproduce la misma propiedad
+function cargarDesdeUrl(q) {
+  const params = new URLSearchParams(q);
+  if (![...params.keys()].length) return;
+  for (const el of form.elements) {
+    if (!el.name) continue;
+    if (el.type === "checkbox") el.checked = params.has(el.name);
+    else if (el.type === "radio") el.checked = params.get(el.name) === el.value;
+    else if (params.has(el.name)) el.value = params.get(el.name);
+  }
+}
+
+cargarDesdeUrl(location.hash.slice(1));
+form.addEventListener("input", render);
+form.addEventListener("change", render);
+document.getElementById("restablecer").addEventListener("click", () => { cargarDesdeUrl(INICIAL); render(); });
+
+const o = P.origen;
+document.getElementById("origen").textContent =
+  `Modelo de alquiler de la 3ra pre-entrega · entrenado el ${o.modelo_entrenado.slice(0, 10)} con ${num(o.n_alquileres_entrenamiento)} alquileres · ` +
+  `vara: banda de retorno mínimo de ${pct(PISO)} a ${pct(TECHO)}`;
+document.getElementById("pie").innerHTML =
+  `Datos: avisos de RE/MAX relevados en agosto de 2026; tablas de IDECBA, Colegio de Escribanos e Inside Airbnb; Ley Tarifaria 6927. ` +
+  `Parámetros de la Entrega 3 (commit ${esc(o.commit || "desconocido")}), generados el ${esc(o.generado.slice(0, 10))}. ` +
+  `Esto es un prototipo analítico, no un tasador: las cifras son estimaciones con su banda de error.`;
+render();
+</script>
+</body>
+</html>

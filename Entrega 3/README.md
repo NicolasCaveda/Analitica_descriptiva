@@ -5,7 +5,8 @@
 Tercera etapa del análisis de rentabilidad inmobiliaria para un pequeño inversor
 particular que, con USD 80.000 a 200.000, evalúa comprar **una** unidad en CABA para
 alquilarla. Esta entrega valida formalmente las hipótesis, completa la fusión espacial,
-resuelve y evalúa la decisión del inversor, y la pone en sus manos con un tablero.
+resuelve y evalúa la decisión del inversor, y la pone en sus manos con un tablero y un
+simulador.
 
 La 1ra y la 2da entrega están en sus propias carpetas y no se modifican. Esta carpeta es
 autónoma: tiene su propio pipeline, sus datos y sus tests, y no lee nada fuera de ella.
@@ -52,7 +53,10 @@ corre acá desde el crudo y reproduce las cifras de referencia (ver
   informativo que no entra al modelo (ver [Síntesis de atributos](#síntesis-de-atributos-y-micro-mercados));
 - la **función de decisión** para P1 a P3, implementada y evaluada (ver
   [Función de decisión](#función-de-decisión));
-- el **tablero para el inversor**, en Streamlit (ver [El tablero](#el-tablero));
+- el **tablero para el inversor**, en Streamlit y publicado en
+  <https://dashboard-descriptiva-g2.streamlit.app/> (ver [El tablero](#el-tablero));
+- el **simulador**, una página que evalúa cualquier propiedad que el inversor esté
+  considerando, esté o no en el relevamiento (ver [El simulador](#el-simulador));
 - el **informe de hallazgos**, regenerado con todo lo anterior.
 
 La revisión del modelo no cambió el alquiler estimado, así que los KPIs 1 a 3 quedan
@@ -72,6 +76,15 @@ ningún KPI, así que cada número de la pantalla coincide con el del informe.
 
 ### Cómo abrirlo
 
+**En la web: <https://dashboard-descriptiva-g2.streamlit.app/>**
+
+Está publicado en Streamlit Community Cloud, así que se abre desde cualquier navegador,
+sin instalar nada. Corre el mismo `tablero/app.py` de este repositorio sobre el dataset
+versionado. Si estuvo un tiempo sin visitas, Streamlit lo pone a dormir: la primera
+apertura puede mostrar un botón para despertarlo y tardar unos segundos.
+
+**En la computadora**, por ejemplo para probar un cambio antes de subirlo:
+
 ```bash
 py -m pip install -r requirements.txt     # una sola vez
 cd tablero
@@ -81,6 +94,11 @@ py -m streamlit run app.py
 Se abre en el navegador, en `http://localhost:8501`. Se corre desde `tablero/` porque
 Streamlit toma el tema de `tablero/.streamlit/config.toml` de la carpeta desde donde se
 ejecuta. Lee el dataset versionado, así que no hace falta correr el pipeline antes.
+
+La versión publicada instala sus dependencias desde el `requirements.txt` de la raíz del
+repositorio, y no desde el de esta carpeta: Community Cloud no maneja bien el espacio de
+"Entrega 3" en la ruta. Las versiones son las mismas en los dos archivos; si cambian en
+uno, hay que cambiarlas en el otro.
 
 ### Qué muestra
 
@@ -131,6 +149,141 @@ El diseño (paleta, pestañas, filtros, estados) está en
 [`data/processed/DISENO_TABLERO.md`](data/processed/DISENO_TABLERO.md); qué columnas usa y
 qué advertencias son obligatorias, en
 [`data/processed/GUIA_TABLERO.md`](data/processed/GUIA_TABLERO.md).
+
+---
+
+## El simulador
+
+> **Encontré esta propiedad: ¿a este precio me conviene?**
+
+Agregamos el simulador para que el inversor pueda calcular la rentabilidad posible de
+cualquier propiedad que tenga en vista, o de cualquier combinación de barrio, tamaño,
+antigüedad y características que esté evaluando. Así llega a la visita y a la
+negociación sabiendo cuánto puede esperar que rinda, con qué margen de error y hasta qué
+precio la compra le gana a la renta fija. Usa el mismo modelo, los mismos supuestos y los
+mismos criterios de decisión que el resto del análisis.
+
+### Por qué lo agregamos
+
+**El análisis habla del mercado, pero el inversor compra una sola propiedad.** "Para la
+propiedad típica, la decisión es no comprar" es una afirmación sobre la mediana, y nadie
+compra la mediana. P1 y P2 bajan la conclusión a una lista corta, pero solo de las 4.484
+propiedades de la cartera de RE/MAX relevada en agosto. La propiedad que el inversor va a
+mirar de verdad casi seguro no está ahí: puede salir de otro portal, de otra
+inmobiliaria, de un cartel en la puerta o de un aviso del mes siguiente. El tablero no
+puede evaluarla, porque solo filtra filas que ya están calculadas. El simulador cubre ese
+hueco: con los datos del aviso, le hace a esa propiedad la misma evaluación que recibió
+cada una de las 4.484. Calcula el alquiler estimado con su banda, el ABL, la neta, los
+costos de entrada, la TIR a 5 años, P1, la posición frente al universo de P2 y P3.
+
+**El precio de publicación no es el de compra.** Es la primera limitación del trabajo:
+los avisos muestran lo que pide el vendedor. En el simulador, el precio lo carga el
+inversor. Puede poner el que piensa ofrecer y ver cuánta rentabilidad recupera, o bajarlo
+hasta encontrar el precio a partir del cual la propiedad cruza la banda de retorno. Esa
+cifra es su **precio de reserva** para negociar. Un ejemplo: un 2 ambientes de 50 m² y 30
+años en Caballito, publicado a USD 110.000, rinde 4,75% neto (banda de 3,81% a 5,81%) y
+3,51% de TIR. La neta central recién llega al piso de la banda (7,10%) por debajo de
+USD 73.000. La pesimista supera el techo (7,60%) recién por debajo de USD 55.000, que
+está afuera del presupuesto. Que la respuesta sea "a ningún precio que se pueda
+negociar" también sirve, porque evita comprar algo que no le gana a una obligación
+negociable.
+
+**Permite probar combinaciones antes de salir a buscar.** Los hallazgos dicen en general
+que el barrio es la palanca más fuerte y que las amenities rinden menos. El simulador
+deja comprobarlo en el perfil que le interesa al inversor: puede cambiar solo el barrio,
+o sumar una característica, y ver cuánto se mueve el resultado. En la misma unidad de
+Caballito, la cochera suma unos USD 80 por mes al alquiler estimado (la neta pasa de
+4,75% a 5,47% al mismo precio). Las amenities suman USD 11, así que el inquilino casi no
+las paga aunque encarezcan la compra. Marcarla "a reciclar" baja el alquiler y, con la
+refacción mínima, deja la TIR en 1,55%. Con eso el inversor sabe qué combinaciones vale
+la pena buscar antes de visitar, y concentra la búsqueda del tablero en ellas.
+
+**Algunos supuestos son del inversor.** La vacancia se puede cambiar: quien ya tiene un
+inquilino en vista, o espera que la unidad tarde en alquilarse, ve cómo cambia la
+conclusión. Los demás supuestos (gastos, ABL, costos de entrada, refacción) aparecen en
+el desglose con sus valores, para que se sepa qué hay detrás de cada cifra.
+
+**Mide con la misma vara que el informe.** No es una calculadora aparte con fórmulas
+propias. El modelo es el mismo `.joblib` que guarda `kpis.py`, y los parámetros los arma
+`simular.py --actualizar` con las funciones de `src/` (supuestos, costos y decisión).
+Los tests (ver [Cómo se verificó](#cómo-se-verificó-1)) comprueban que, para cada una de
+las 10.749 ventas, el simulador da los mismos valores que el dataset analítico. Mantiene
+también los recaudos del tablero: cada rentabilidad aparece con su banda, P1 dice
+**"a verificar"** y nunca "comprar", una propiedad fuera del soporte del modelo se marca
+como extrapolación, y las limitaciones están siempre visibles.
+
+**Llega a quien decide.** El simulador es un solo archivo HTML: se abre con doble clic,
+sin instalar nada, sin servidor y sin internet, así que el inversor lo puede usar en
+cualquier lugar, incluso en plena visita. La dirección de la página guarda la propiedad
+cargada, de modo que puede mandarle el link a un socio, al escribano o a un asesor, y
+ellos ven exactamente el mismo caso.
+
+### Tablero y simulador
+
+Responden preguntas distintas y se usan uno detrás del otro.
+
+| | Tablero | Simulador |
+|---|---|---|
+| **La pregunta** | ¿Conviene el mercado? ¿Dónde y qué buscar? | ¿Esta propiedad, a este precio? |
+| **Sobre qué** | Las 9.203 ventas del relevamiento | La propiedad que carga el inversor, esté o no en el relevamiento |
+| **Qué calcula** | Nada: filtra y resume columnas ya calculadas | Todo, con el modelo y los supuestos de la entrega |
+| **Cómo se abre** | En el navegador, con [el link](https://dashboard-descriptiva-g2.streamlit.app/) | Doble clic, sin internet |
+
+El recorrido es este: el tablero acota barrios y perfiles, el inversor sale a buscar,
+y cada propiedad concreta (con su precio real o el que piensa ofrecer) pasa por el
+simulador antes de decidir.
+
+### Cómo abrirlo
+
+Doble clic en [`simulador/simulador.html`](simulador/simulador.html). La misma cuenta,
+por consola:
+
+```bash
+py simulador/simular.py                                              # pregunta los datos
+py simulador/simular.py --barrio caballito --m2 50 --ambientes 2 --venta 110000
+```
+
+### Qué muestra
+
+A la izquierda está la propiedad: barrio, tipo, superficie, ambientes, dormitorios,
+baños, antigüedad, 14 características, el precio (es opcional) y la vacancia. A la
+derecha aparecen el **alquiler estimado** con su banda y el control contra el alquiler
+mediano por m² del barrio. Si se cargó el precio, se suman la **rentabilidad neta y la
+TIR** contra la banda de retorno mínimo, la **decisión** (P1, la posición frente a las
+4.484 propiedades del universo de P2 y P3) y un **desglose** con todas las cifras y sus
+supuestos. Sin precio, solo estima el alquiler.
+
+### Cómo se verificó
+
+`py simulador/test_simulador.py` corre 91 verificaciones:
+
+- **Contra el pipeline**: cada una de las 10.749 ventas del dataset analítico, pasada por
+  el simulador, da los mismos valores en las 33 columnas que comparte con el dataset
+  (alquiler y banda, ABL, netas, costos, TIR, universo y P1). Las cifras de referencia
+  salen iguales: universo de 4.484, 18 que pasan P1 y 4 con costos de entrada, y una
+  frontera de P2 de 140.
+- **La página contra Python**: la página repite el cálculo en JavaScript
+  (`simulador/web/motor.js`). El test la corre en Chrome sin ventana sobre las 10.749
+  ventas y compara cada cifra con la de Python. También compara el modelo exportado como
+  coeficientes con el `predict()` de scikit-learn.
+- **Negativos**: con otra vacancia la neta cambia, una casa grande "regalada" fuera del
+  soporte no pasa P1 aunque su neta sea alta, una propiedad fuera del presupuesto no
+  entra al universo, y una superficie fuera de rango se rechaza.
+
+Si se vuelve a correr el pipeline, se regeneran los parámetros y la página:
+
+```bash
+py simulador/simular.py --actualizar     # parametros.json, desde la salida del pipeline
+py simulador/simular.py --html           # simulador/simulador.html
+```
+
+### Lo que no es
+
+**No es un tasador.** Estima el alquiler con un modelo entrenado con los avisos de una
+sola inmobiliaria, y hereda todas las [limitaciones](#limitaciones) del análisis. El
+simulador sirve para descartar rápido y para negociar con números. Comprar sigue
+exigiendo mirar lo que el aviso no dice: el estado real, las expensas, la documentación y
+por qué la propiedad está más barata que su celda.
 
 ---
 
@@ -618,6 +771,7 @@ Las que más pesan en los resultados, con dónde se justifican:
 | Los micro-mercados se comparan con precios observados, no con la rentabilidad estimada | El numerador de la rentabilidad sale de un modelo que ya usa esos atributos | Notebook 05 |
 | P1 contra el techo de la banda y con el escenario pesimista; P2 por dominancia de bandas; soporte del modelo | Una compra no se deshace barato, y la banda es la incertidumbre real de cada estimación | [Función de decisión](#función-de-decisión) |
 | El tablero no recalcula KPIs: filtra y resume columnas ya materializadas | Cada número de la pantalla coincide con el del informe, y un test lo verifica | [El tablero](#el-tablero) |
+| El simulador sí recalcula, pero con el modelo guardado y parámetros armados por las funciones de `src/` | Tiene que evaluar propiedades que no están en el dataset; un test lo ata a las 10.749 ventas del dataset, en Python y en la página | [El simulador](#el-simulador) |
 | El informe lo escribe un script | Cada cifra narrada sale del dato y no se desincroniza | `src/reporte.py` |
 
 ---
@@ -761,6 +915,11 @@ y conserva solo los gráficos y hallazgos que cambian la decisión del inversor.
 | `tablero/datos.py` | La lógica del tablero: carga del dataset, filtros, medianas y etapas de la decisión. Importa `supuestos` y `eda` de `src/` |
 | `tablero/test_tablero.py` | 106 verificaciones de `datos.py`: las cifras de referencia sin filtros, cada filtro fila por fila, y negativos |
 | `tablero/.streamlit/config.toml` | El tema del tablero |
+| `simulador/simular.py` | El simulador por consola, y el que arma `parametros.json` (`--actualizar`) y la página (`--html`). **Viene del repositorio previo del grupo** (`LladhonM/Analitica-Descriptiva`), donde se actualizó al modelo de esta entrega; acá lee el modelo de `data/processed/` y no sale de la carpeta |
+| `simulador/simulador.html` | La página del simulador, autocontenida: se abre con doble clic. La genera `simular.py --html`; no se edita a mano |
+| `simulador/web/plantilla.html`, `simulador/web/motor.js` | Las fuentes de la página: la interfaz y el cálculo en JavaScript, que repite el de `simular()` |
+| `simulador/parametros.json` | Supuestos, tablas por barrio y celda y referencias del mercado que usa el simulador, armados con las funciones de `src/` |
+| `simulador/test_simulador.py` | 91 verificaciones: el simulador contra el dataset analítico en cada venta, la página contra Python en Chrome, y negativos |
 | `data/processed/DISENO_TABLERO.md` | Diseño del tablero: paleta, pestañas, visualizaciones, filtros y comportamiento |
 | `data/processed/GUIA_TABLERO.md` | Qué columnas usa el tablero y cuáles son internas, y las limitaciones que van en pantalla |
 | `informe/INFORME_HALLAZGOS.md` | El informe de esta entrega, que emite `reporte.py` |
@@ -804,6 +963,9 @@ py src/test_validacion.py                # piezas de los tests formales, sin dat
 py src/test_sintesis.py                  # PCA, MCA y micro-mercados, sin datos
 py src/test_decision.py                  # función de decisión
 py tablero/test_tablero.py               # carga, filtros y medianas del tablero
+py simulador/simular.py --actualizar     # parámetros del simulador
+py simulador/simular.py --html           # la página del simulador
+py simulador/test_simulador.py           # simulador contra el dataset; la página en Chrome
 ```
 
 Los diez primeros scripts reconstruyen `data/processed/` y el informe a partir de
@@ -836,7 +998,9 @@ versionado; el archivo de espacios verdes pesa 15 MB) y rehace las capas con la 
 del día.
 
 El tablero no necesita el pipeline: lee el dataset versionado (ver
-[Cómo abrirlo](#cómo-abrirlo)).
+[Cómo abrirlo](#cómo-abrirlo)). El simulador tampoco: la página versionada ya trae el
+modelo y los parámetros. Solo hace falta regenerarla si cambia la salida del pipeline.
+La parte del test que corre la página necesita Chrome; sin él, se saltea.
 
 **Cifras de referencia.** Una corrida correcta da exactamente estas cifras, y el tablero
 las reproduce sin filtros (todo el rango de precios y todos los tipos). Si alguna cambia,
@@ -876,6 +1040,8 @@ Entrega 3/
 ├── graficos/           los 15 gráficos que guardan los notebooks
 ├── src/                pipeline, supuestos y tests
 ├── tablero/            tablero en Streamlit: app.py, datos.py, test_tablero.py y el tema
+├── simulador/          simulador.html (doble clic), simular.py, parametros.json,
+│                       test_simulador.py y las fuentes de la página en web/
 ├── requirements.txt
 └── README.md
 ```
