@@ -168,7 +168,7 @@ mismos criterios de decisión que el resto del análisis.
 **El análisis habla del mercado, pero el inversor compra una sola propiedad.** "Para la
 propiedad típica, la decisión es no comprar" es una afirmación sobre la mediana, y nadie
 compra la mediana. P1 y P2 bajan la conclusión a una lista corta, pero solo de las 4.484
-propiedades de la cartera de RE/MAX relevada en agosto. La propiedad que el inversor va a
+propiedades del universo de la decisión, dentro de la cartera de RE/MAX relevada en agosto. La propiedad que el inversor va a
 mirar de verdad casi seguro no está ahí: puede salir de otro portal, de otra
 inmobiliaria, de un cartel en la puerta o de un aviso del mes siguiente. El tablero no
 puede evaluarla, porque solo filtra filas que ya están calculadas. El simulador cubre ese
@@ -225,7 +225,7 @@ Responden preguntas distintas y se usan uno detrás del otro.
 | | Tablero | Simulador |
 |---|---|---|
 | **La pregunta** | ¿Conviene el mercado? ¿Dónde y qué buscar? | ¿Esta propiedad, a este precio? |
-| **Sobre qué** | Las 9.203 ventas del relevamiento | La propiedad que carga el inversor, esté o no en el relevamiento |
+| **Sobre qué** | Las 9.203 ventas con alquiler estimado confiable | La propiedad que carga el inversor, esté o no en el relevamiento |
 | **Qué calcula** | Nada: filtra y resume columnas ya calculadas | Todo, con el modelo y los supuestos de la entrega |
 | **Cómo se abre** | En el navegador, con [el link](https://dashboard-descriptiva-g2.streamlit.app/) | Doble clic, sin internet |
 
@@ -436,7 +436,7 @@ distancia al subte es **0,000** en los 3.375 avisos a más de 1 km.
 está incorporada en el precio del barrio*. Dentro del barrio, estar a 300 m o a 1 km de
 la red no cambia el m². La segunda mitad se sostiene con una precisión: *salvo donde el
 transporte escasea*, entendido como el aviso y no el barrio. El 6% de los avisos a más
-de 1 km de las tres redes cotiza alrededor de 6% menos que sus comparables del mismo
+de 1 km de las tres redes cotiza alrededor de 7% menos que sus comparables del mismo
 barrio. Para P2, esto significa que el inversor no paga una prima por estar más cerca de
 una estación dentro de su barrio, y que el descuento lejos de la red es chico y está
 concentrado en pocos avisos.
@@ -533,8 +533,8 @@ banda de retorno mínimo: 7,10%.
 | TIR a 5 años, ABL segmentado + costos de entrada | **4,27%** | **0** | Constitución, San Telmo, San Cristóbal, Liniers, San Nicolás |
 
 - **El ABL segmentado redistribuye, pero no mueve la conclusión.** La neta mediana
-  baja 0,02 pp y el ranking casi no cambia (Spearman 0,996 contra el plano): sube Villa
-  Urquiza 2 puestos y bajan San Nicolás, Retiro y Villa Luro uno cada uno. Constitución
+  baja 0,02 pp y el ranking casi no cambia (Spearman 0,996 contra el plano): Villa
+  Urquiza sube 2 puestos y ningún otro barrio se mueve más de uno. Constitución
   pasa de 8,17% a 8,35%, porque su ABL baja: es barato, y el plano le cobraba de más.
 - **Los costos de entrada sí la mueven.** Restan 1,38 pp por año en el horizonte, y
   ningún barrio supera el piso. Constitución, el único que lo superaba, queda en una
@@ -578,7 +578,7 @@ entre corchetes:
 
 | Modelo | R² en log | Error relativo mediano | Error, < 35 m² | Error, 100+ m² |
 |---|---|---|---|---|
-| Mediana de barrio × tramo de superficie (referencia) | 0,751 [0,743, 0,755] | 15,05% | 12,5% | 22,7% |
+| Mediana de barrio × tramo de superficie (referencia) | 0,750 [0,743, 0,755] | 15,05% | 12,5% | 22,7% |
 | **Ridge vigente, 21 predictoras** | **0,847 [0,846, 0,848]** | **11,42%** | 11,1% | 17,0% |
 | Ridge + variables espaciales | 0,847 [0,846, 0,848] | 11,56% | 10,9% | 17,1% |
 | Gradient boosting, mismas variables, afinado | 0,844 [0,842, 0,849] | 11,41% | 9,4% | 19,2% |
@@ -735,7 +735,7 @@ analítico, que son las que usa el tablero. Desarrollo completo en el
 
 **El soporte del modelo, un filtro nuevo.** Sin él, P1 y P2 recomendaban casas de 6 a 10
 ambientes con netas de 15% a 27%: el modelo les extrapolaba alquileres de hasta
-USD 5.000, con 14 alquileres de casas y 44 de PH observados. Solo entran a las
+unos USD 5.200, con 14 alquileres de casas y 44 de PH observados. Solo entran a las
 recomendaciones las propiedades cuya celda tipo × tramo de superficie tiene 30
 alquileres observados o más (`supuestos.MIN_ALQ_SOPORTE`). Quedan afuera 714 casas y PH
 dentro del presupuesto.
@@ -972,8 +972,8 @@ Los diez primeros scripts reconstruyen `data/processed/` y el informe a partir d
 `data/raw/dataset_maestro.csv`, en ese orden: `temporal.py` usa el ABL que calcula
 `kpis.py`, `comparacion_modelos.py` lee la banda del modelo que guarda `kpis.py`,
 `decision.py` necesita la salida de `temporal.py`, y `reporte.py` lee todo lo anterior.
-La corrida de los diez scripts tarda unos 3 minutos y reproduce exactamente los valores
-versionados: en una corrida desde cero solo cambian las fechas de los reportes.
+La corrida de los diez scripts tarda unos 3 minutos y reproduce los valores
+versionados.
 
 Después, los notebooks, que leen esas salidas:
 

@@ -27,7 +27,8 @@ raíz: lo usa la versión del tablero publicada en Streamlit Community Cloud.
 
 - **Tablero**: <https://dashboard-descriptiva-g2.streamlit.app/>. Se abre en el
   navegador, sin instalar nada. Responde si conviene comprar, en qué barrios y qué
-  propiedades mirar, sobre las 9.203 ventas relevadas. Cómo correrlo localmente, en
+  propiedades mirar, sobre las 9.203 ventas con alquiler estimado confiable. Cómo
+  correrlo localmente, en
   [`Entrega 3/README.md`](Entrega%203/README.md#el-tablero).
 - **Simulador**: [`Entrega 3/simulador/simulador.html`](Entrega%203/simulador/simulador.html).
   Se descarga y se abre con doble clic. Evalúa cualquier propiedad que el inversor tenga

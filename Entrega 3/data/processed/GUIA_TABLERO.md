@@ -45,8 +45,9 @@ def cargar():
 - **`encoding="utf-8-sig"`**: el CSV tiene BOM. Sin eso, la primera columna se llama
   `﻿id_aviso`.
 - **`usecols`** con las columnas de la tabla de abajo, más `operacion` y
-  `estimacion_confiable`, que usa el filtro: deja afuera los textos largos, que son la
-  mayor parte del peso.
+  `estimacion_confiable`, que usa el filtro, y `fecha_scraping`, para la fecha del
+  relevamiento en el encabezado: deja afuera los textos largos, que son la mayor parte
+  del peso.
 - **Las booleanas tienen nulos** en las filas donde no aplican (alquileres, ventas sin
   estimación confiable), así que pandas las lee como texto. El `fillna(False)` las
   vuelve booleanas.
@@ -67,7 +68,7 @@ def cargar():
 |---|---|
 | Identificar y enlazar | `id_aviso`, `url`, `titulo` |
 | Filtros | `barrio`, `comuna`, `tipo_familia`, `superficie_rango`, `ambientes`, `dormitorios`, `antiguedad_rango`, `venta_usd`, `en_presupuesto` |
-| Mapa | `latitud`, `longitud` (7 avisos sin coordenadas) |
+| Mapa | `latitud`, `longitud` (5 de las 9.203 ventas no tienen coordenadas; 7 avisos en todo el dataset) |
 | Precio | `venta_usd`, `venta_m2_usd`, `sup_total_m2`, `expensas_usd` |
 | Alquiler estimado | `alquiler_est_usd_mes`, `alquiler_p10_usd_mes`, `alquiler_p90_usd_mes` |
 | KPIs | `rent_bruta_pct`, `rent_neta_pct`, `meses_repago`, `rent_bruta_min`, `rent_bruta_max`, `tir_5a_pct` |
@@ -85,9 +86,10 @@ Tablas chicas que sirven tal cual (se leen igual, con `utf-8-sig`):
 | Archivo | Para qué |
 |---|---|
 | `ranking_barrios.csv` | Neta, bruta y TIR medianas por barrio (barrios con 30 o más ventas) |
-| `temporal_vs_tradicional.csv` | P3 por barrio × dormitorios |
+| `temporal_vs_tradicional.csv` | P3 por barrio × dormitorios; el tablero toma de acá la ocupación mediana de Inside Airbnb |
 | `decision_p3.csv` | Celdas donde gana el temporal, según la ocupación y la gestión |
 | `decision_sensibilidad.csv` | Cuánto cambian P1 y P2 con cada supuesto |
+| 7 de las 10 tablas de `data/external/` | Solo el período que cubre cada fuente y su fecha de descarga, para la tabla de fuentes de la pestaña 5 |
 
 ## Columnas internas: no usar
 
@@ -104,7 +106,8 @@ Tablas chicas que sirven tal cual (se leen igual, con `utf-8-sig`):
   están hechos.
 - **Las 35 dummies sueltas del texto** (`pileta`, `sum`, `luminoso`, etc.): para el
   tablero alcanza con `amenities` y `cochera_txt`. Las demás no cambian la decisión.
-- **`dueno_directo`**: vale 0 en todas las filas.
+- **`dueno_directo`**: vale 1 en solo 5 de los 12.097 avisos (1 entre las ventas del
+  tablero): no sirve para filtrar.
 
 ## Lo que el tablero tiene que mostrar en pantalla
 
